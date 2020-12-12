@@ -20,6 +20,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "FaustCodeTokenizer.h"
 
 
 class EditorComponent :
@@ -37,6 +38,8 @@ public:
     void setSource (juce::String);
 
 private:
+    FaustTokeniser tokeniser;
+
     // Warning: sourceCode has to be declared before codeEditor!
     // Don't swap the following two lines.
     juce::CodeDocument sourceCode;

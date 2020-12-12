@@ -20,7 +20,7 @@
 #include "EditorComponent.h"
 
 EditorComponent::EditorComponent () :
-    codeEditor (sourceCode, nullptr)
+    codeEditor (sourceCode, &tokeniser)
 {
     addAndMakeVisible (&codeEditor);
 

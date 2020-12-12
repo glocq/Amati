@@ -6,6 +6,10 @@
               defines="PARAM_COUNT=16">
   <MAINGROUP id="uXmTZu" name="Amati">
     <GROUP id="{CE1A8605-8DD1-D4EB-4ABD-C469B98E7C90}" name="Source">
+      <FILE id="FdELvN" name="FaustCodeTokenizer.cpp" compile="1" resource="0"
+            file="Source/FaustCodeTokenizer.cpp"/>
+      <FILE id="p9Vb53" name="FaustCodeTokenizer.h" compile="0" resource="0"
+            file="Source/FaustCodeTokenizer.h"/>
       <FILE id="neCeIP" name="DebugComponent.cpp" compile="1" resource="0"
             file="Source/DebugComponent.cpp"/>
       <FILE id="KWhDJg" name="DebugComponent.h" compile="0" resource="0"

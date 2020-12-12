@@ -47,3 +47,14 @@ Those are features I would like to implement at some point, but I can't guarante
 * MIDI support. This would allow definition of instruments, not just audio effects.
 * Displaying Faust diagrams. Diagrams are a crucial tool for coding in Faust, so that would be nice.
 
+Author
+-------
+
+[Grégoire Locqueville](https://github.com/glocq/)
+
+
+Credits
+--------
+
+`FaustCodeTokenizer.h` and `FaustCodeTokenizer.cpp` files copied (and slightly modified) from [Oliver Larkin](https://github.com/olilarkin)'s [juce_faustllvm](https://github.com/olilarkin/juce_faustllvm) project.
+
