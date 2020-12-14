@@ -9,10 +9,18 @@ Building
 
 _Amati has only been built on Linux yet. Do tell me if you tried to build it on something else, whether you were successful or not!_
 
+### Dependencies
+
+You'll need to have [libfaust](https://faust.grame.fr/downloads/) installed.
+
+### Getting the source code
+
 Clone this repository with its submodule:
 ```
 git clone --recurse-submodules https://github.com/glocq/Amati.git
 ```
+
+### Building
 
 Using the [Projucer](https://juce.com/discover/projucer), open and save the `Amati.jucer` file in the `Amati/` directory. If Amati will possibly be used to compile an effect with more than 16 parameters, edit the `PARAM_COUNT` variable accordingly before saving.
 
