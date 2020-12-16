@@ -118,7 +118,16 @@ void AmatiAudioProcessor::changeProgramName (int index, const juce::String& newN
 void AmatiAudioProcessor::prepareToPlay (double sampRate, int samplesPerBlock)
 {
     sampleRate = sampRate;
-    tmpBuffer = juce::AudioBuffer<float> (getTotalNumInputChannels (), samplesPerBlock);
+
+    // numChannelsIn and numChannelsOut should be equal
+    // (and probably equal to 0),
+    // but we get both just in case
+
+    int numChannelsIn  = tmpBufferIn.getNumChannels ();
+    int numChannelsOut = tmpBufferOut.getNumChannels ();
+
+    tmpBufferIn  = juce::AudioBuffer<float> (numChannelsIn,  samplesPerBlock);
+    tmpBufferOut = juce::AudioBuffer<float> (numChannelsOut, samplesPerBlock);
 }
 
 void AmatiAudioProcessor::releaseResources()
@@ -136,6 +145,16 @@ void AmatiAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
 {
     updateDspParameters ();
 
+    int numSamples = buffer.getNumSamples ();
+
+    // The host should not give us more samples than expected.
+    // If it does though, we resize our internal buffers
+    if (numSamples > tmpBufferIn.getNumSamples ())
+    {
+        tmpBufferIn.setSize  (tmpBufferIn.getNumChannels  (), numSamples);
+        tmpBufferOut.setSize (tmpBufferOut.getNumChannels (), numSamples);
+    }
+
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
@@ -143,26 +162,41 @@ void AmatiAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
     if (not faustProgram.isReady ())
     {
         for (auto i = 0; i < totalNumOutputChannels; ++i)
-            buffer.clear (i, 0, buffer.getNumSamples ());
+            buffer.clear (i, 0, numSamples);
     }
     else
     {
-        // Copy the input buffer
-        tmpBuffer.makeCopyOf (buffer);
+        // What is going to happen:
+        // buffer will be copied into tmpBufferIn. tmpBufferIn will be processed into tmpBufferOut.
+        // Then tmpBufferOut will be copied into buffer again.
+        // This is to maks sure we do the computation in a controlled environment
+        // (i.e. buffers with known number of channels).
+        // I hope all those copies won't take up too much time though...
 
-        // Clear all output channels, now that we've copied their contents.
-        // This is probably useless, but we're doing it just in case.
-        for (auto i = 0; i < totalNumOutputChannels; ++i)
-            buffer.clear (i, 0, buffer.getNumSamples());
+        for (int chan = 0; (chan < totalNumInputChannels) && (chan < tmpBufferIn.getNumChannels ()); ++chan)
+            tmpBufferIn.copyFrom (chan, 0, buffer, chan, 0, numSamples);
 
-        // It doesn't seem to be a problem if we try to write to more channels than we're allowed.
-        // TODO Investigate why I can't use a read-only pointer to get the input
+        // Clear remaining channels, if any
+        for (int chan = totalNumInputChannels; chan < tmpBufferIn.getNumChannels (); ++ chan)
+            tmpBufferIn.clear (chan, 0, numSamples);
+
+        // ---
+
         faustProgram.compute
         (
-            buffer.getNumSamples (),
-            tmpBuffer.getArrayOfWritePointers (),
-            buffer.getArrayOfWritePointers ()
+            numSamples,
+            tmpBufferIn.getArrayOfWritePointers (), // TODO investigate why those need to be write pointers
+            tmpBufferOut.getArrayOfWritePointers ()
         );
+
+        // ---
+
+        for (int chan = 0; (chan < totalNumOutputChannels) && (chan < tmpBufferOut.getNumChannels ()); ++chan)
+            buffer.copyFrom (chan, 0, tmpBufferOut, chan, 0, numSamples);
+
+        // Clear remaining channels, if any
+        for (int chan = tmpBufferOut.getNumChannels (); chan < totalNumOutputChannels; ++chan)
+            buffer.clear (chan, 0, numSamples);
     }
 }
 
@@ -249,7 +283,16 @@ bool AmatiAudioProcessor::compileSource (juce::String source)
     bool result = faustProgram.compileSource (source);
 
     if (result)
+    {
         sourceCode = source;
+
+        // Update internal buffers
+        int inChans  = faustProgram.getNumInChannels  ();
+        int outChans = faustProgram.getNumOutChannels ();
+
+        tmpBufferIn.setSize  (inChans,  tmpBufferIn.getNumSamples  ());
+        tmpBufferOut.setSize (outChans, tmpBufferOut.getNumSamples ());
+    }
 
     return result;
 }

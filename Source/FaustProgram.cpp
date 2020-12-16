@@ -86,6 +86,25 @@ int FaustProgram::getParamCount ()
         return 0;
 }
 
+
+int FaustProgram::getNumInChannels ()
+{
+    if (dspInstance)
+        return (dspInstance -> getNumInputs ());
+    else
+        return 0;
+}
+
+
+int FaustProgram::getNumOutChannels ()
+{
+    if (dspInstance)
+        return (dspInstance -> getNumOutputs ());
+    else
+        return 0;
+}
+
+
 double FaustProgram::getValue (int index)
 {
     if (index < 0 || index >= getParamCount ())

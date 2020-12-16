@@ -97,8 +97,9 @@ private:
     // and only make some number of them accessible from the GUI.
     juce::Array<juce::AudioParameterFloat*> controlParameters;
 
-    // Used in processBlock to copy the input buffer
-    juce::AudioBuffer<float> tmpBuffer;
+    // Used in processBlock to copy input and output buffers
+    juce::AudioBuffer<float> tmpBufferIn;
+    juce::AudioBuffer<float> tmpBufferOut;
 
     double sampleRate;
 

@@ -34,6 +34,8 @@ public:
 
     bool compileSource (juce::String);
     int getParamCount ();
+    int getNumInChannels ();
+    int getNumOutChannels ();
 
     double getValue (int);
     void setValue (int, double);
