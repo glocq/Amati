@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2020 by Grégoire Locqueville <gregoireloc@gmail.com>
+    Copyright (C) 2020, 2021 by Grégoire Locqueville <gregoireloc@gmail.com>
 
     This file is part of Amati.
 
@@ -22,7 +22,7 @@
 #include <JuceHeader.h>
 
 #include <faust/dsp/llvm-dsp.h>
-#include <faust/gui/MapUI.h>
+#include <faust/gui/APIUI.h>
 
 
 class FaustProgram
@@ -47,7 +47,7 @@ public:
 private:
 
     llvm_dsp* dspInstance = nullptr;
-    MapUI* faustInterface = nullptr;
+    APIUI* faustInterface = nullptr;
     bool ready = false;
     int sampleRate;
 };

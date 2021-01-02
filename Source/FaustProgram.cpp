@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2020 by Grégoire Locqueville <gregoireloc@gmail.com>
+    Copyright (C) 2020, 2021 by Grégoire Locqueville <gregoireloc@gmail.com>
 
     This file is part of Amati.
 
@@ -60,7 +60,7 @@ bool FaustProgram::compileSource (juce::String source)
 
         dspInstance -> init (sampleRate);
 
-        faustInterface = new MapUI;
+        faustInterface = new APIUI;
         dspInstance -> buildUserInterface (faustInterface);
 
         ready = true;
@@ -110,14 +110,14 @@ double FaustProgram::getValue (int index)
     if (index < 0 || index >= getParamCount ())
         return 0.0;
     else
-        return (faustInterface->getParamValue (faustInterface->getParamAddress (index)));
+        return (faustInterface->getParamValue (index));
 }
 
 void FaustProgram::setValue (int index, double value)
 {
     if (index < 0 || index >= getParamCount ()) {}
     else
-        faustInterface->setParamValue (faustInterface->getParamAddress (index), value);
+        faustInterface->setParamValue (index, value);
 }
 
 void FaustProgram::compute (int samples, float** in, float** out)
