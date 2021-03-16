@@ -20,7 +20,6 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include <faust/gui/MapUI.h>
 
 #include "PluginProcessor.h"
 
@@ -47,4 +46,3 @@ private:
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ParamEditor);
 };
-
