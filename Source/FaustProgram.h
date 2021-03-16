@@ -25,8 +25,18 @@
 #include <faust/gui/APIUI.h>
 
 
+// Wrapper around Faust-related stuff, namely:
+// - a Faust program
+// - the associated user interface
+
 class FaustProgram
 {
+
+private:
+    // UNAVAILABLE is for when we don't/can't include the UI element;
+    // As of now, only sliders are available (and they are all horizontal)
+    enum ItemType {UNAVAILABLE, SLIDER};
+
 public:
 
     FaustProgram (int sampRate);
@@ -36,6 +46,14 @@ public:
     int getParamCount ();
     int getNumInChannels ();
     int getNumOutChannels ();
+
+    // Getters for values associated with a parameter
+    // (UI element type; minimum, maximum and initial value)
+    // Argument has to be less than parameter count!
+    ItemType getType (int);
+    double getMin (int);
+    double getMax (int);
+    double getInit (int);
 
     double getValue (int);
     void setValue (int, double);
@@ -50,5 +68,6 @@ private:
     APIUI* faustInterface = nullptr;
     bool ready = false;
     int sampleRate;
-};
 
+
+};

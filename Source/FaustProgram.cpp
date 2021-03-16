@@ -105,6 +105,35 @@ int FaustProgram::getNumOutChannels ()
 }
 
 
+FaustProgram::ItemType FaustProgram::getType (int index)
+{
+    APIUI::ItemType type = faustInterface->getParamItemType (index);
+
+    if (type == APIUI::kVSlider || type == APIUI::kVSlider)
+        return SLIDER;
+    else
+        return UNAVAILABLE;
+}
+
+
+double FaustProgram::getMin (int index)
+{
+    return (faustInterface->getParamMin (index));
+}
+
+
+double FaustProgram::getMax (int index)
+{
+    return (faustInterface->getParamMax (index));
+}
+
+
+double FaustProgram::getInit (int index)
+{
+    return (faustInterface->getParamInit (index));
+}
+
+
 double FaustProgram::getValue (int index)
 {
     if (index < 0 || index >= getParamCount ())
@@ -135,4 +164,3 @@ bool FaustProgram::isReady ()
 {
     return ready;
 }
-
