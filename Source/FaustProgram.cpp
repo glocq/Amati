@@ -34,7 +34,7 @@ bool FaustProgram::compileSource (juce::String source)
 {
     juce::Logger::getCurrentLogger() -> writeToLog ("Starting compilation...");
 
-    const char* argv[] = {}; // compilation arguments
+    const char* argv[] = {""}; // compilation arguments
     std::string errorString;
 
     llvm_dsp_factory* factory = createDSPFactoryFromString

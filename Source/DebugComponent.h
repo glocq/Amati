@@ -38,6 +38,5 @@ public:
 private:
     juce::TextEditor console;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DebugComponent);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DebugComponent)
 };
-

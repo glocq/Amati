@@ -44,5 +44,5 @@ public:
 private:
     juce::OwnedArray<juce::Slider> sliders;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ParamEditor);
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ParamEditor)
 };

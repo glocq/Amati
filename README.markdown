@@ -11,6 +11,8 @@ _Amati has only been built on Linux yet. Do tell me if you tried to build it on 
 
 ### Dependencies
 
+Amati is built using CMake. You need a recent enough version of CMake (3.16 or later).
+
 You'll need to have [libfaust](https://faust.grame.fr/downloads/) installed.
 
 ### Getting the source code
@@ -22,19 +24,26 @@ git clone --recurse-submodules https://github.com/glocq/Amati.git
 
 ### Building
 
-Using the [Projucer](https://juce.com/discover/projucer), open and save the `Amati.jucer` file in the `Amati/` directory. If Amati will possibly be used to compile an effect with more than 16 parameters, edit the `PARAM_COUNT` variable accordingly before saving.
+* Create a directory `build` (or whatever name you see fit) inside the repository, and enter it:
+```
+cd Amati
+mkdir build
+cd build
+```
 
-Note that if the Projucer has not been built with the `JUCER_ENABLE_GPL_MODE` set to 1, it will complain about the splash screen option. To deal with that, you can either:
+* Run cmake with the parent directory as the source directory
+```
+cmake ..
+```
 
-* Re-enable the JUCE splash screen: from the Projucer, click on the small gear on the right of "Amati" in the top left corner of the interface, find the option "Display the JUCE Splash Screen", select "Enabled", and re-save the project,
-* Or you can rebuild the Projucer with the GPL mode flag set to 1, and save the project with that version of the Projucer. That way you'll have a splash-screen-free plugin.
-
-You can now close the Projucer. You should now have a directory `Builds/LinuxMakefile/` in `Amati/`. Navigate to that directory, and run
+* _If on Linux_, run make:
 ```
 make
 ```
+Your plugin should now be in `Amati_artefacts/VST3/`.
 
-This will build Amati as a VST3 plugin. The files are in the `build/` directory.
+* _If on other OSs..._ There should be project files somewhere, that you can open and build using some IDE.
+
 
 Using
 ------
@@ -65,4 +74,3 @@ Credits
 --------
 
 `FaustCodeTokenizer.h` and `FaustCodeTokenizer.cpp` files copied (and slightly modified) from [Oliver Larkin](https://github.com/olilarkin)'s [juce_faustllvm](https://github.com/olilarkin/juce_faustllvm) project.
-
