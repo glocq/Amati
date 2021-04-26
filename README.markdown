@@ -56,13 +56,18 @@ The graphic interface is composed of three tabs.
     - Parameters are restricted to values between 0 and 1, at least for now. So make sure the parameters defined in your Faust code are set to be between 0 and 1 too!
 * On the _Console_ tab, messages regarding Faust compilation are displayed.
 
-"Planned" features
--------------------
+Contributing
+-------------
 
-Those are features I would like to implement at some point, but I can't guarantee they ever will be.
+The issues labeled with "todo" describe features I'd like to see implemented. Feel free to tackle them, or just weigh in or ask for clarification by commenting on them.
 
-* MIDI support. This would allow definition of instruments, not just audio effects.
-* Displaying Faust diagrams. Diagrams are a crucial tool for coding in Faust, so that would be nice.
+If you do write some code:
+
+* Be as clear as possible. As you would expect, I only intend to integrate code I understand, and I'm not the most experienced with JUCE, or even C++. Still, if you contribute, be assured that I appreciate it, and I will put in a reasonable amount of effort to understand what you did.
+* Keep it to one feature/fix per commit.
+* Be OK with having your code changed before integration.
+
+Of course, I'll credit you.
 
 Author
 -------
