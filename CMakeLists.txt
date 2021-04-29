@@ -33,6 +33,10 @@ option(JUCE_BUILD_EXAMPLES "Build JUCE Examples" OFF)
 
 add_subdirectory(JUCE)
 
+include_directories(
+	/usr/local/include
+)
+
 
 juce_add_plugin("${BaseTargetName}"
     COMPANY_NAME "Glocq"
@@ -75,5 +79,5 @@ target_link_libraries(${BaseTargetName} PRIVATE
     juce::juce_recommended_config_flags
     juce::juce_recommended_lto_flags
     juce::juce_recommended_warning_flags
-    faust
+    -L/usr/local/lib faust
 )
