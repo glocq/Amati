@@ -69,10 +69,12 @@ If you do write some code:
 
 Of course, I'll credit you.
 
-Author
--------
+Contributors
+-------------
 
-[Grégoire Locqueville](https://github.com/glocq/)
+Author: [Grégoire Locqueville](https://github.com/glocq/)
+
+Contributor: [Juan Sierra](https://www.juansaudio.com/)
 
 
 Credits
