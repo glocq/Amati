@@ -7,7 +7,7 @@ set (BaseTargetName Amati)
 
 # The following few lines are copied from https://github.com/eyalamirmusic/JUCECmakeRepoPrototype
 # Being a Linux user, I don't really know to what extent they are necessary, or whether they are even correct.
-# If you are building on another OS, please tell me aout your experience!
+# If you are building on another OS, please tell me about your experience!
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.9" CACHE STRING "Minimum OS X deployment version" FORCE)
