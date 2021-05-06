@@ -52,7 +52,7 @@ include_directories(
 	/usr/local/include
 )
 
-set(Formats AU VST3 AUv3 Standalone)
+set(Formats VST3 AU Standalone)
 
 
 juce_add_plugin(${BaseTargetName}
