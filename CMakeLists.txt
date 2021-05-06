@@ -22,13 +22,28 @@ endif()
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 #Adds all the module sources so they appear correctly in the IDE
-set_property(GLOBAL PROPERTY USE_FOLDERS YES)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 option(JUCE_ENABLE_MODULE_SOURCE_GROUPS "Enable Module Source Groups" ON)
+
+# By default we don't want Xcode schemes to be made for modules, etc
+set(CMAKE_XCODE_GENERATE_SCHEME OFF)
 
 #-------------------------------------------------------------------------------
 
 option(JUCE_BUILD_EXTRAS "Build JUCE Extras" OFF)
 option(JUCE_BUILD_EXAMPLES "Build JUCE Examples" OFF)
+
+# Adds all the module sources so they appear correctly in the IDE
+# Must be set before JUCE is added as a sub-dir (or any targets are made)
+set_property(GLOBAL PROPERTY USE_FOLDERS YES)
+
+# This is a failed attempt to bury ALL_BUILD in Targets/
+# This should be called before any target is made
+# Bug in Xcode? https://gitlab.kitware.com/cmake/cmake/-/issues/21383
+set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "Targets")
+
+# Create a /Modules directory in the IDE with the JUCE Module code
+option(JUCE_ENABLE_MODULE_SOURCE_GROUPS "Show all module sources in IDE projects" ON)
 
 
 add_subdirectory(JUCE)
@@ -37,24 +52,36 @@ include_directories(
 	/usr/local/include
 )
 
+set(Formats AU VST3 AUv3 Standalone)
 
-juce_add_plugin("${BaseTargetName}"
+
+juce_add_plugin(${BaseTargetName}
     COMPANY_NAME "Glocq"
     IS_SYNTH FALSE
     NEEDS_MIDI_INPUT FALSE
     NEEDS_MIDI_OUTPUT FALSE
     IS_MIDI_EFFECT FALSE
-    EDITOR_WANTS_KEYBOARD_FOCUS FALSE
-    COPY_PLUGIN_AFTER_BUILD FALSE
+    EDITOR_WANTS_KEYBOARD_FOCUS TRUE
+    COPY_PLUGIN_AFTER_BUILD TRUE
     PLUGIN_MANUFACTURER_CODE L0cq # Not sure I understand what those
     PLUGIN_CODE Mati              # are about, I hope I'm doing it right
-    FORMATS AU VST3 Standalone
-    PRODUCT_NAME "Amati"
+    FORMATS ${Formats}
+    PRODUCT_NAME ${BaseTargetName}
 )
+
+# C++ std
+target_compile_features(${BaseTargetName} PRIVATE cxx_std_17)
 
 juce_generate_juce_header(${BaseTargetName})
 
-target_sources(${BaseTargetName} PRIVATE
+set(SourceFiles
+    Source/DebugComponent.h
+    Source/EditorComponent.h
+    Source/FaustCodeTokenizer.h
+    Source/FaustProgram.h
+    Source/ParamEditor.h
+    Source/PluginEditor.h
+    Source/PluginProcessor.h
     Source/DebugComponent.cpp
     Source/EditorComponent.cpp
     Source/FaustCodeTokenizer.cpp
@@ -63,6 +90,36 @@ target_sources(${BaseTargetName} PRIVATE
     Source/PluginEditor.cpp
     Source/PluginProcessor.cpp
 )
+
+target_sources(${BaseTargetName} PRIVATE ${SourceFiles})
+
+# No, we don't want our source buried in extra nested folders
+set_target_properties("${PROJECT_NAME}" PROPERTIES FOLDER "")
+
+# The source tree should uhhh, still look like the source tree, yo
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/Source PREFIX "" FILES ${SourceFiles})
+
+
+# This cleans up the folder organization, especially on Xcode.
+# It tucks the Plugin varieties into a "Targets" folder and generate an Xcode Scheme manually
+# Xcode scheme generation is turned off globally to limit noise from other targets
+# The non-hacky way of doing this is via the global PREDEFINED_TARGETS_FOLDER propety
+# However that doesn't seem to be working in Xcode
+# Not all plugin types (au, vst) available on each build type (win, macos, linux)
+foreach(target ${Formats} "All")
+    if(TARGET ${BaseTargetName}_${target})
+        set_target_properties(${BaseTargetName}_${target} PROPERTIES
+            # Tuck the actual plugin targets into a folder where they won't bother us
+            FOLDER "Targets"
+            
+            # MacOS only: Sets the default executable that Xcode will open on build
+            # For this exact path to to work, manually build the AudioPluginHost.xcodeproj in the JUCE subdir 
+            XCODE_SCHEME_EXECUTABLE "${CMAKE_CURRENT_SOURCE_DIR}/JUCE/extras/AudioPluginHost/Builds/MacOSX/build/Debug/AudioPluginHost.app"
+            
+            # Let us build the target in Xcode 
+            XCODE_GENERATE_SCHEME ON)
+    endif()
+endforeach()
 
 target_compile_definitions(${BaseTargetName}
     PUBLIC
