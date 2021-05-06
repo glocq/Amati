@@ -246,7 +246,6 @@ struct FaustTokeniserFunctions
 
 //==============================================================================
 FaustTokeniser::FaustTokeniser() {}
-FaustTokeniser::~FaustTokeniser() {}
 
 int FaustTokeniser::readNextToken (CodeDocument::Iterator& source)
 {
