@@ -18,7 +18,6 @@ class FaustTokeniser   : public CodeTokeniser
 public:
   //==============================================================================
   FaustTokeniser();
-  ~FaustTokeniser();
   
   //==============================================================================
   int readNextToken (CodeDocument::Iterator&) override;
