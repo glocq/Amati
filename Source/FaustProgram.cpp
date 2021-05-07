@@ -29,7 +29,6 @@ bool FaustProgram::compileSource (juce::String source)
 {
     juce::Logger::getCurrentLogger() -> writeToLog ("Starting compilation...");
 
-    const char* argv[] = {""}; // compilation arguments
     std::string errorString;
 
     std::unique_ptr<llvm_dsp_factory> factory (createDSPFactoryFromString
@@ -37,7 +36,7 @@ bool FaustProgram::compileSource (juce::String source)
         "faust", // program name
         source.toStdString (),
         0, // number of arguments
-        argv,
+        nullptr,
         "", // compilation target; left empty to say we want to compile for this machine
         errorString
     ));
