@@ -47,7 +47,7 @@ public:
     void sliderDragStarted (juce::Slider*) override;
     void sliderDragEnded (juce::Slider*) override;
 
-    void timerCallback ();
+    void timerCallback () override;
 
 private:
     // This reference is provided as a quick way for your editor to
