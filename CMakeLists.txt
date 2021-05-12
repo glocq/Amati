@@ -126,7 +126,7 @@ target_compile_definitions(${BaseTargetName}
     JUCE_WEB_BROWSER=0
     JUCE_USE_CURL=0
     JUCE_VST3_CAN_REPLACE_VST2=0
-    JUCER_ENABLE_GPL_MODE=1
+    JUCE_DISPLAY_SPLASH_SCREEN=0
     # Change the following if you want more accessible VST parameters!
     PARAM_COUNT=16
 )
