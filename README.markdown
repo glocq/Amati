@@ -7,7 +7,7 @@ As of now it only provides basic functionality. I am making it public so as to g
 Building
 ---------
 
-_Amati has only been built on Linux yet. Do tell me if you tried to build it on something else, whether you were successful or not!_
+As of now, only the VST version has been built successfully, on Linux and MacOS. Any feedback about building attempts is appreciated.
 
 ### Dependencies
 
