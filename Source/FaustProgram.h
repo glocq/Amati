@@ -40,7 +40,6 @@ private:
 public:
 
     FaustProgram (int sampRate);
-    ~FaustProgram ();
 
     bool compileSource (juce::String);
     int getParamCount ();
@@ -64,8 +63,8 @@ public:
 
 private:
 
-    llvm_dsp* dspInstance = nullptr;
-    APIUI* faustInterface = nullptr;
+    std::unique_ptr<llvm_dsp> dspInstance = nullptr;
+    std::unique_ptr<APIUI> faustInterface = nullptr;
     bool ready = false;
     int sampleRate;
 

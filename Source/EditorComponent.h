@@ -28,9 +28,8 @@ class EditorComponent :
 {
 public:
     EditorComponent ();
-    ~EditorComponent () {};
 
-    void paint (juce::Graphics&) override {};
+    void paint (juce::Graphics&) override {}
     void resized () override;
 
     void startListeningToCompileButton (juce::Button::Listener*);
