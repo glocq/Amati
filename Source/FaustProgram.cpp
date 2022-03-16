@@ -24,17 +24,11 @@ FaustProgram::FaustProgram (int sampRate) : sampleRate (sampRate)
 {
 }
 
-FaustProgram::~FaustProgram ()
-{
-    delete faustInterface;
-    delete dspInstance;
-}
 
 bool FaustProgram::compileSource (juce::String source)
 {
     juce::Logger::getCurrentLogger() -> writeToLog ("Starting compilation...");
 
-    const char* argv[] = {""}; // compilation arguments
     std::string errorString;
 
     llvm_dsp_factory* factory = createDSPFactoryFromString
@@ -42,7 +36,7 @@ bool FaustProgram::compileSource (juce::String source)
         "faust", // program name
         source.toStdString (),
         0, // number of arguments
-        argv,
+        nullptr,
         "", // compilation target; left empty to say we want to compile for this machine
         errorString
     );
@@ -50,18 +44,12 @@ bool FaustProgram::compileSource (juce::String source)
 
     if (factory) // compilation successful!
     {
-        llvm_dsp* formerInstance = dspInstance;
-
-        dspInstance = factory -> createDSPInstance ();
-
-        // delete factory; // we won't need this anymore
-        delete formerInstance; // has been replaced
-        delete faustInterface; // to start fresh
+        dspInstance.reset(factory -> createDSPInstance ());
 
         dspInstance -> init (sampleRate);
 
-        faustInterface = new APIUI;
-        dspInstance -> buildUserInterface (faustInterface);
+        faustInterface.reset(new APIUI);
+        dspInstance -> buildUserInterface (faustInterface.get());
 
         ready = true;
 
@@ -100,8 +88,7 @@ int FaustProgram::getNumOutChannels ()
 {
     if (dspInstance)
         return (dspInstance -> getNumOutputs ());
-    else
-        return 0;
+    return 0;
 }
 
 
@@ -138,15 +125,14 @@ double FaustProgram::getValue (int index)
 {
     if (index < 0 || index >= getParamCount ())
         return 0.0;
-    else
-        return (faustInterface->getParamValue (index));
+    return (faustInterface->getParamValue (index));
 }
 
 void FaustProgram::setValue (int index, double value)
 {
-    if (index < 0 || index >= getParamCount ()) {}
-    else
-        faustInterface->setParamValue (index, value);
+    if (index < 0 || index >= getParamCount ())
+        return
+    faustInterface->setParamValue (index, static_cast<float>(value));
 }
 
 void FaustProgram::compute (int samples, float** in, float** out)
