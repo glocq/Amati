@@ -2,3 +2,6 @@
 Builds
 JuceLibraryCode
 
+/build/
+/cmake-build-debug/
+/.idea/
