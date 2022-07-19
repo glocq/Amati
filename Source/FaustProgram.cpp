@@ -146,7 +146,7 @@ void FaustProgram::setValue (int index, double value)
 {
     if (index < 0 || index >= getParamCount ()) {}
     else
-        faustInterface->setParamValue (index, value);
+        faustInterface->setParamValue (index, static_cast<float>(value));
 }
 
 void FaustProgram::compute (int samples, float** in, float** out)

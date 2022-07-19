@@ -28,9 +28,9 @@ class DebugComponent :
 {
 public:
     DebugComponent ();
-    ~DebugComponent () {};
+    ~DebugComponent () override {}
 
-    void paint (juce::Graphics&) override {};
+    void paint (juce::Graphics&) override {}
     void resized () override;
 
     void logMessage (const juce::String&) override;

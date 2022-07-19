@@ -94,7 +94,7 @@ void AmatiAudioProcessorEditor::sliderValueChanged (juce::Slider* slider)
     {
         if (paramEditor.compareWithSlider(slider, i))
         {
-            audioProcessor.setParameter (i, slider -> getValue() );
+            audioProcessor.setParameter(i, static_cast<float>(slider->getValue()));
         }
     }
 }

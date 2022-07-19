@@ -80,7 +80,7 @@ public:
     double getParameterValue (int);
     juce::String getLabel(int idx);
 
-    void setParameter (int, double);
+    void setParameter (int, float) override;
     void beginGesture (int);
     void endGesture (int);
 

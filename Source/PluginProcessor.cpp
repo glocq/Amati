@@ -102,16 +102,16 @@ int AmatiAudioProcessor::getCurrentProgram()
     return 0;
 }
 
-void AmatiAudioProcessor::setCurrentProgram (int index)
+void AmatiAudioProcessor::setCurrentProgram (int /* index */)
 {
 }
 
-const juce::String AmatiAudioProcessor::getProgramName (int index)
+const juce::String AmatiAudioProcessor::getProgramName (int /* index */)
 {
     return {};
 }
 
-void AmatiAudioProcessor::changeProgramName (int index, const juce::String& newName)
+void AmatiAudioProcessor::changeProgramName (int /* index */, const juce::String& /* newName */)
 {
 }
 
@@ -134,14 +134,14 @@ void AmatiAudioProcessor::releaseResources()
 {
 }
 
-bool AmatiAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
+bool AmatiAudioProcessor::isBusesLayoutSupported (const BusesLayout&) const
 {
     // We want to accept any layout; the responsibility is on the user to write
     // a Faust program that is compatible with the layout
     return true;
 }
 
-void AmatiAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
+void AmatiAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& /* midiMessages */)
 {
     updateDspParameters ();
 
@@ -202,7 +202,7 @@ void AmatiAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
 
 bool AmatiAudioProcessor::hasEditor() const
 {
-    return true; // (change this to false if you choose to not supply an editor)
+    return true;
 }
 
 juce::AudioProcessorEditor* AmatiAudioProcessor::createEditor()
@@ -255,12 +255,12 @@ void AmatiAudioProcessor::setStateInformation (const void* data, int sizeInBytes
 
             while (child)
             {
-                int    index = child -> getIntAttribute    ("index", -1);
-                double value = child -> getDoubleAttribute ("value");
+                auto index = child -> getIntAttribute    ("index", -1);
+                auto value = child->getDoubleAttribute ("value");
 
                 if (index != -1)
                 {
-                    setParameter (index, value);
+                    setParameter (index, static_cast<float>(value));
                 }
                 else
                     juce::Logger::getCurrentLogger() -> writeToLog ("Preset parameter missing index");
@@ -316,7 +316,7 @@ juce::String AmatiAudioProcessor::getLabel(int idx) {
   return faustProgram.getLabel(idx);
 }
 
-void AmatiAudioProcessor::setParameter (int index, double value)
+void AmatiAudioProcessor::setParameter (int index, float value)
 {
     controlParameters[index] -> setValueNotifyingHost (value);
 }

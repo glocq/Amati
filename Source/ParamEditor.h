@@ -29,7 +29,7 @@ class ParamEditor :
 {
 public:
     ParamEditor ();
-    ~ParamEditor () {}
+    ~ParamEditor () override {}
 
     void paint (juce::Graphics&) override {}
     void resized () override;
