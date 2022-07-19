@@ -182,12 +182,7 @@ void AmatiAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
 
         // ---
 
-        faustProgram.compute
-        (
-            numSamples,
-            tmpBufferIn.getArrayOfWritePointers (), // TODO investigate why those need to be write pointers
-            tmpBufferOut.getArrayOfWritePointers ()
-        );
+        faustProgram.compute(numSamples, tmpBufferIn.getArrayOfReadPointers(), tmpBufferOut.getArrayOfWritePointers());
 
         // ---
 

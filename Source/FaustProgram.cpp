@@ -149,9 +149,9 @@ void FaustProgram::setValue (int index, double value)
         faustInterface->setParamValue (index, static_cast<float>(value));
 }
 
-void FaustProgram::compute (int samples, float** in, float** out)
+void FaustProgram::compute(int samples, const float** in, float** out)
 {
-    dspInstance -> compute (samples, in, out);
+    dspInstance -> compute (samples, const_cast<float**>(in), out);
 }
 
 void FaustProgram::setSampleRate (int sampRate)
