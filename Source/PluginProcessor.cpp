@@ -37,9 +37,9 @@ AmatiAudioProcessor::AmatiAudioProcessor() :
 {
     for (int i = 0; i < PARAM_COUNT; ++i)
     {
-        juce::AudioParameterFloat* newParam = new juce::AudioParameterFloat
+        auto* newParam = new juce::AudioParameterFloat
         (
-            "param" + juce::String (i),
+            {"param" + juce::String (i), 1},
             "Parameter " + juce::String (i),
             0.0f,
             1.0f,
@@ -310,6 +310,10 @@ int AmatiAudioProcessor::getParamCount ()
 double AmatiAudioProcessor::getParameterValue (int index)
 {
     return (controlParameters[index] -> get ());
+}
+
+juce::String AmatiAudioProcessor::getLabel(int idx) {
+  return faustProgram.getLabel(idx);
 }
 
 void AmatiAudioProcessor::setParameter (int index, double value)

@@ -78,6 +78,7 @@ public:
 
     int getParamCount ();
     double getParameterValue (int);
+    juce::String getLabel(int idx);
 
     void setParameter (int, double);
     void beginGesture (int);

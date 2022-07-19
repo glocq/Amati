@@ -164,3 +164,7 @@ bool FaustProgram::isReady ()
 {
     return ready;
 }
+
+juce::String FaustProgram::getLabel(int idx) {
+  return juce::String(faustInterface->getParamLabel(idx));
+}

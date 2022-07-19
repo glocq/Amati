@@ -29,9 +29,9 @@ class ParamEditor :
 {
 public:
     ParamEditor ();
-    ~ParamEditor () {};
+    ~ParamEditor () {}
 
-    void paint (juce::Graphics&) override {};
+    void paint (juce::Graphics&) override {}
     void resized () override;
 
     void setValue (int, double);
@@ -43,6 +43,7 @@ public:
 
 private:
     juce::OwnedArray<juce::Slider> sliders;
+    juce::OwnedArray<juce::Label> labels;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ParamEditor)
 };

@@ -57,6 +57,7 @@ public:
 
     double getValue (int);
     void setValue (int, double);
+    juce::String getLabel(int idx);
 
     void compute (int sampleCount, float** input, float** output);
     void setSampleRate (int);

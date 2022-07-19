@@ -23,26 +23,32 @@ ParamEditor::ParamEditor ()
 {
     for (int i = 0; i < PARAM_COUNT; ++i)
     {
-        // Create a new slider in the slider array
-        sliders.add (new juce::Slider ());
+        auto* slider = new juce::Slider();
+        auto* label = new juce::Label();
+        label->attachToComponent(slider, false);
+        label->setText("Label", juce::dontSendNotification);
+        sliders.add(slider);
+        labels.add(label);
 
         sliders[i] -> setRange(0.0, 1.0);
-        addChildComponent (sliders[i]);
+        addChildComponent(sliders[i]);
+        addChildComponent(labels[i]);
     }
 }
 
 void ParamEditor::resized ()
 {
-    int margin = 10;
+    int margin = 50;
     int sliderHeight = 30;
+    int sideMargin = 10;
 
     for (int i = 0; i < PARAM_COUNT; ++i)
     {
         sliders[i] -> setBounds
         (
-            margin,
+            sideMargin,
             (1+i) * margin + i * sliderHeight,
-            getWidth () - margin,
+            getWidth () - sideMargin,
             sliderHeight
         );
     }
@@ -70,6 +76,7 @@ void ParamEditor::updateParameters (AmatiAudioProcessor& processor)
 {
     int count = processor.getParamCount ();
 
+
     if (count > PARAM_COUNT)
     {
         juce::Logger::getCurrentLogger () -> outputDebugString
@@ -83,13 +90,16 @@ void ParamEditor::updateParameters (AmatiAudioProcessor& processor)
 
     for (int i = 0; i < count; ++i)
     {
-        sliders[i] -> setValue (0.0);
-        sliders[i] -> setVisible (true);
+        sliders[i]->setValue (0.0);
+        sliders[i]->setVisible (true);
+        labels[i]->setVisible(true);
+        labels[i]->setText(processor.getLabel(i), juce::dontSendNotification);
     }
 
     for (int i = count; i < PARAM_COUNT; ++i)
     {
-        sliders[i] -> setVisible (false);
+        sliders[i]->setVisible(false);
+        labels[i]->setVisible(false);
     }
 }
 
