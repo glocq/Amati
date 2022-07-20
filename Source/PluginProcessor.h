@@ -24,6 +24,10 @@
 
 #include "FaustProgram.h"
 
+inline juce::String paramIdForIdx(size_t idx) {
+  return juce::String("Param") + juce::String(idx);
+}
+
 //==============================================================================
 /**
 */
@@ -77,12 +81,11 @@ public:
     juce::String getSourceCode ();
 
     int getParamCount ();
-    double getParameterValue (int);
-    juce::String getLabel(int idx);
+    juce::String getLabel(size_t idx);
 
-    void setParameter (int, float) override;
-    void beginGesture (int);
-    void endGesture (int);
+    void setParameter(int, float) override;
+    void beginGesture(size_t);
+    void endGesture(size_t);
 
 private:
     //==============================================================================
@@ -91,6 +94,8 @@ private:
     juce::String sourceCode = "";
 
     FaustProgram faustProgram;
+
+    juce::AudioProcessorValueTreeState valueTreeState;
 
     // The parameters defined in the Faust code.
     // Hosts don't like it when the set of parameters dynamically changes,

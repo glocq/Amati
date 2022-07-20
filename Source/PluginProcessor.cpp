@@ -21,35 +21,26 @@
 
 #include "PluginEditor.h"
 
+static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout() {
+  juce::AudioProcessorValueTreeState::ParameterLayout layout;
+  for (int i = 0; i < PARAM_COUNT; i++) {
+    auto id = juce::ParameterID(paramIdForIdx(i), 1);
+    auto name = juce::String("Parameter ") + juce::String(i);
+    layout.add(std::make_unique<juce::AudioParameterFloat>(id, name, 0.f, 1.f, 0.f));
+  }
+  return layout;
+}
 
 AmatiAudioProcessor::AmatiAudioProcessor() :
 #ifndef JucePlugin_PreferredChannelConfigurations
      AudioProcessor (BusesProperties()
-                     #if ! JucePlugin_IsMidiEffect
-                      #if ! JucePlugin_IsSynth
                        .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
-                      #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
-                     #endif
                        ),
 #endif
-     faustProgram (44100)
-{
-    for (int i = 0; i < PARAM_COUNT; ++i)
-    {
-        auto* newParam = new juce::AudioParameterFloat
-        (
-            {"param" + juce::String (i), 1},
-            "Parameter " + juce::String (i),
-            0.0f,
-            1.0f,
-            0.0f
-        );
-
-        controlParameters.insert (i, newParam);
-        addParameter (newParam);
-    }
-}
+    faustProgram (44100),
+      valueTreeState(*this, nullptr, "parameters", createParameterLayout())
+{}
 
 AmatiAudioProcessor::~AmatiAudioProcessor()
 {
@@ -143,7 +134,7 @@ bool AmatiAudioProcessor::isBusesLayoutSupported (const BusesLayout&) const
 
 void AmatiAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& /* midiMessages */)
 {
-    updateDspParameters ();
+    updateDspParameters();
 
     int numSamples = buffer.getNumSamples ();
 
@@ -202,30 +193,22 @@ bool AmatiAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* AmatiAudioProcessor::createEditor()
 {
-    return new AmatiAudioProcessorEditor (*this);
+    return new AmatiAudioProcessorEditor (*this, valueTreeState);
 }
 
 void AmatiAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
-    juce::Logger::getCurrentLogger() -> writeToLog ("Saving preset");
+    juce::Logger::getCurrentLogger()->writeToLog ("Saving preset");
 
     // Create parent element
     juce::XmlElement preset = juce::XmlElement ("amati_preset");
 
     // Add source code. TODO allow for source code on file
     juce::XmlElement* sourceTag = preset.createNewChildElement ("source");
-    sourceTag -> addTextElement (sourceCode);
+    sourceTag->addTextElement(sourceCode);
 
-    // Add values for the parameters
-
-    juce::XmlElement* parameters = preset.createNewChildElement ("parameters");
-
-    for (int i = 0; i < getParamCount (); ++i)
-    {
-        juce::XmlElement* slot = parameters -> createNewChildElement ("slot");
-        slot -> setAttribute ("index", i);
-        slot -> setAttribute ("value", getParameterValue (i));
-    }
+    auto state = valueTreeState.copyState().createXml();
+    preset.addChildElement(new juce::XmlElement(*state.get()));
 
     // We're done! We can store our tree on disk now
     copyXmlToBinary (preset, destData);
@@ -242,29 +225,12 @@ void AmatiAudioProcessor::setStateInformation (const void* data, int sizeInBytes
         sourceCode = preset -> getChildByName ("source") -> getAllSubText ();
         compileSource (sourceCode);
 
-        juce::XmlElement* parameters = preset -> getChildByName ("parameters");
-
-        if (parameters)
-        {
-            juce::XmlElement* child = parameters -> getFirstChildElement ();
-
-            while (child)
-            {
-                auto index = child -> getIntAttribute    ("index", -1);
-                auto value = child->getDoubleAttribute ("value");
-
-                if (index != -1)
-                {
-                    setParameter (index, static_cast<float>(value));
-                }
-                else
-                    juce::Logger::getCurrentLogger() -> writeToLog ("Preset parameter missing index");
-
-                child = child -> getNextElement ();
-            }
+        juce::XmlElement* parameters = preset->getChildByName(valueTreeState.state.getType());
+        if (parameters) {
+          valueTreeState.replaceState(juce::ValueTree::fromXml(*parameters));
+        } else {
+          juce::Logger::getCurrentLogger()->writeToLog("Invalid preset");
         }
-        else
-            juce::Logger::getCurrentLogger() -> writeToLog ("Invalid preset");
     }
 }
 
@@ -299,42 +265,23 @@ juce::String AmatiAudioProcessor::getSourceCode ()
 
 int AmatiAudioProcessor::getParamCount ()
 {
-    return faustProgram.getParamCount ();
+    return faustProgram.getParamCount();
 }
 
-double AmatiAudioProcessor::getParameterValue (int index)
-{
-    return (controlParameters[index] -> get ());
-}
-
-juce::String AmatiAudioProcessor::getLabel(int idx) {
+juce::String AmatiAudioProcessor::getLabel(size_t idx) {
   return faustProgram.getLabel(idx);
 }
 
 void AmatiAudioProcessor::setParameter (int index, float value)
 {
-    controlParameters[index] -> setValueNotifyingHost (value);
+    controlParameters[index]->setValueNotifyingHost (value);
 }
-
-void AmatiAudioProcessor::beginGesture (int index)
-{
-    controlParameters[index] -> beginChangeGesture ();
-}
-
-void AmatiAudioProcessor::endGesture (int index)
-{
-    controlParameters[index] -> endChangeGesture ();
-}
-
 
 void AmatiAudioProcessor::updateDspParameters ()
 {
-    int count = faustProgram.getParamCount ();
-
-    for (int i = 0; i < count; ++i)
-    {
-        double val = controlParameters[i] -> get(); 
-        faustProgram.setValue (i, val);
+    size_t count = faustProgram.getParamCount();
+    for (size_t i = 0; i < count; ++i) {
+        faustProgram.setValue (i, *valueTreeState.getRawParameterValue(paramIdForIdx(i)));
     }
 }
 

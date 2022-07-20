@@ -23,10 +23,12 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-AmatiAudioProcessorEditor::AmatiAudioProcessorEditor (AmatiAudioProcessor& p) :
+AmatiAudioProcessorEditor::AmatiAudioProcessorEditor (AmatiAudioProcessor& p, juce::AudioProcessorValueTreeState& vts) :
     AudioProcessorEditor (&p),
     audioProcessor (p),
-    tabbedComponent (juce::TabbedButtonBar::TabsAtTop)
+                                                                                                                      valueTreeState(vts),
+    tabbedComponent (juce::TabbedButtonBar::TabsAtTop),
+    paramEditor(vts)
 {
     // Graphics stuff ----------------------------------------------------------
 
@@ -48,14 +50,11 @@ AmatiAudioProcessorEditor::AmatiAudioProcessorEditor (AmatiAudioProcessor& p) :
     //---------------------------------------------------------------------------
 
     editorComponent.startListeningToCompileButton (this);
-    paramEditor.startListeningToSliders (this);
 
     updateParameters (); // set the right display for the parameters
     updateEditor (); // set editor to display the processor's source code
 
     juce::Logger::setCurrentLogger (&consoleTab);
-
-    startTimer (30);
 }
 
 AmatiAudioProcessorEditor::~AmatiAudioProcessorEditor()
@@ -88,53 +87,14 @@ void AmatiAudioProcessorEditor::buttonClicked (juce::Button* button)
     }
 }
 
-void AmatiAudioProcessorEditor::sliderValueChanged (juce::Slider* slider)
-{
-    for (int i = 0; i < PARAM_COUNT; ++i)
-    {
-        if (paramEditor.compareWithSlider(slider, i))
-        {
-            audioProcessor.setParameter(i, static_cast<float>(slider->getValue()));
-        }
-    }
-}
-
-void AmatiAudioProcessorEditor::sliderDragStarted (juce::Slider* slider)
-{
-    for (int i = 0; i < PARAM_COUNT; ++i)
-    {
-        if (paramEditor.compareWithSlider (slider, i))
-        {
-            audioProcessor.beginGesture (i);
-        }
-    }
-}
-
-void AmatiAudioProcessorEditor::sliderDragEnded (juce::Slider* slider)
-{
-    for (int i = 0; i < PARAM_COUNT; ++i)
-    {
-        if (paramEditor.compareWithSlider (slider, i))
-        {
-            audioProcessor.endGesture (i);
-        }
-    }
-}
-
-void AmatiAudioProcessorEditor::timerCallback ()
-{
-    updateParameterValues ();
-}
-
 //==============================================================================
 void AmatiAudioProcessorEditor::updateParameters ()
 {
-    paramEditor.updateParameters (audioProcessor);
-}
-
-void AmatiAudioProcessorEditor::updateParameterValues ()
-{
-    paramEditor.updateParameterValues (audioProcessor);
+  std::vector<ParamEditor::Param> params;
+  for (int i = 0; i < audioProcessor.getParamCount(); i++) {
+    params.push_back({paramIdForIdx(i), audioProcessor.getLabel(i)});
+  }
+  paramEditor.updateParameters(params);
 }
 
 void AmatiAudioProcessorEditor::updateEditor ()

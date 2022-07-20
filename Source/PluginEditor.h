@@ -29,11 +29,9 @@
 class AmatiAudioProcessorEditor :
     public juce::AudioProcessorEditor,
     public juce::Button::Listener,
-    public juce::Slider::Listener,
-    public juce::Timer
 {
 public:
-    AmatiAudioProcessorEditor (AmatiAudioProcessor&);
+    AmatiAudioProcessorEditor (AmatiAudioProcessor&, juce::AudioProcessorValueTreeState&);
     ~AmatiAudioProcessorEditor() override;
 
     //==============================================================================
@@ -43,16 +41,11 @@ public:
     //==============================================================================
     void buttonClicked (juce::Button*) override;
 
-    void sliderValueChanged (juce::Slider*) override;
-    void sliderDragStarted (juce::Slider*) override;
-    void sliderDragEnded (juce::Slider*) override;
-
     void timerCallback() override;
 
 private:
-    // This reference is provided as a quick way for your editor to
-    // access the processor object that created it.
     AmatiAudioProcessor& audioProcessor;
+    juce::AudioProcessorValueTreeState& valueTreeState;
 
     MapUI faustUI;
 

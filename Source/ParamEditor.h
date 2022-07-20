@@ -24,26 +24,25 @@
 #include "PluginProcessor.h"
 
 
-class ParamEditor :
-    public juce::Component
+class ParamEditor : public juce::Component
 {
 public:
-    ParamEditor ();
-    ~ParamEditor () override {}
+    struct Param {
+      juce::String id;
+      juce::String label;
+    };
+    ParamEditor (juce::AudioProcessorValueTreeState&);
+    ~ParamEditor () noexcept override;
 
     void paint (juce::Graphics&) override {}
     void resized () override;
-
-    void setValue (int, double);
-    void startListeningToSliders (juce::Slider::Listener*);
-    bool compareWithSlider (juce::Slider*, int);
-
-    void updateParameters (AmatiAudioProcessor&);
-    void updateParameterValues (AmatiAudioProcessor&);
+    void updateParameters(const std::vector<Param>&);
 
 private:
-    juce::OwnedArray<juce::Slider> sliders;
-    juce::OwnedArray<juce::Label> labels;
+    juce::AudioProcessorValueTreeState& valueTreeState;
+    juce::OwnedArray<juce::Slider> sliders{};
+    juce::OwnedArray<juce::Label> labels{};
+    juce::OwnedArray<juce::AudioProcessorValueTreeState::SliderAttachment> attachments{};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ParamEditor)
 };

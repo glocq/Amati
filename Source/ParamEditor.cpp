@@ -19,21 +19,40 @@
 
 #include "ParamEditor.h"
 
-ParamEditor::ParamEditor ()
-{
-    for (int i = 0; i < PARAM_COUNT; ++i)
-    {
-        auto* slider = new juce::Slider();
-        auto* label = new juce::Label();
-        label->attachToComponent(slider, false);
-        label->setText("Label", juce::dontSendNotification);
-        sliders.add(slider);
-        labels.add(label);
+ParamEditor::ParamEditor (juce::AudioProcessorValueTreeState& vts) :
+  valueTreeState(vts) {}
 
-        sliders[i] -> setRange(0.0, 1.0);
-        addChildComponent(sliders[i]);
-        addChildComponent(labels[i]);
-    }
+ParamEditor::~ParamEditor() noexcept {
+  attachments.clear();
+  labels.clear();
+  sliders.clear();
+}
+
+void ParamEditor::updateParameters(const std::vector<Param>& params) {
+  attachments.clear();
+  labels.clear();
+  sliders.clear();
+
+  for (auto& p : params) {
+    auto *slider = new juce::Slider();
+    slider->setRange(0.0, 1.0);
+
+    auto *attachment = new juce::AudioProcessorValueTreeState::SliderAttachment(
+        valueTreeState, p.id, *slider);
+
+    auto *label = new juce::Label();
+    label->attachToComponent(slider, false);
+    label->setText(p.label, juce::dontSendNotification);
+
+    sliders.add(slider);
+    labels.add(label);
+    attachments.add(attachment);
+
+    addAndMakeVisible(slider);
+    addAndMakeVisible(label);
+  }
+
+  resized();
 }
 
 void ParamEditor::resized ()
@@ -42,7 +61,7 @@ void ParamEditor::resized ()
     int sliderHeight = 30;
     int sideMargin = 10;
 
-    for (int i = 0; i < PARAM_COUNT; ++i)
+    for (int i = 0; i < sliders.size(); ++i)
     {
         sliders[i] -> setBounds
         (
@@ -53,64 +72,3 @@ void ParamEditor::resized ()
         );
     }
 }
-
-void ParamEditor::setValue (int index, double value)
-{
-    sliders[index] -> setValue (value);
-}
-
-void ParamEditor::startListeningToSliders (juce::Slider::Listener* listener)
-{
-    for (int i = 0; i < PARAM_COUNT; ++i)
-    {
-        sliders[i] -> addListener (listener);
-    }
-}
-
-bool ParamEditor::compareWithSlider (juce::Slider* slider, int i)
-{
-    return (slider == sliders[i]);
-}
-
-void ParamEditor::updateParameters (AmatiAudioProcessor& processor)
-{
-    int count = processor.getParamCount ();
-
-
-    if (count > PARAM_COUNT)
-    {
-        juce::Logger::getCurrentLogger () -> outputDebugString
-        (
-            "Number of Faust parameters (" + juce::String (count) +
-            ") exceeds maximum number (" + juce::String (PARAM_COUNT) + ") of parameters!"
-        );
-
-        count = PARAM_COUNT;
-    }
-
-    for (int i = 0; i < count; ++i)
-    {
-        sliders[i]->setValue (0.0);
-        sliders[i]->setVisible (true);
-        labels[i]->setVisible(true);
-        labels[i]->setText(processor.getLabel(i), juce::dontSendNotification);
-    }
-
-    for (int i = count; i < PARAM_COUNT; ++i)
-    {
-        sliders[i]->setVisible(false);
-        labels[i]->setVisible(false);
-    }
-}
-
-void ParamEditor::updateParameterValues (AmatiAudioProcessor& processor)
-{
-    int count = processor.getParamCount ();
-    count = count <= PARAM_COUNT ? count : PARAM_COUNT;
-
-    for (int i = 0; i < count; ++i)
-    {
-        sliders[i] -> setValue (processor.getParameterValue (i));
-    }
-}
-

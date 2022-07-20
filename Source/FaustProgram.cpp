@@ -78,10 +78,10 @@ bool FaustProgram::compileSource (juce::String source)
     }
 }
 
-int FaustProgram::getParamCount ()
+size_t FaustProgram::getParamCount ()
 {
     if (faustInterface)
-        return faustInterface -> getParamsCount ();
+        return static_cast<size_t>(faustInterface->getParamsCount());
     else
         return 0;
 }
@@ -105,7 +105,7 @@ int FaustProgram::getNumOutChannels ()
 }
 
 
-FaustProgram::ItemType FaustProgram::getType (int index)
+FaustProgram::ItemType FaustProgram::getType (size_t index)
 {
     APIUI::ItemType type = faustInterface->getParamItemType (index);
 
@@ -116,37 +116,37 @@ FaustProgram::ItemType FaustProgram::getType (int index)
 }
 
 
-double FaustProgram::getMin (int index)
+double FaustProgram::getMin (size_t index)
 {
     return (faustInterface->getParamMin (index));
 }
 
 
-double FaustProgram::getMax (int index)
+double FaustProgram::getMax (size_t index)
 {
     return (faustInterface->getParamMax (index));
 }
 
 
-double FaustProgram::getInit (int index)
+double FaustProgram::getInit (size_t index)
 {
     return (faustInterface->getParamInit (index));
 }
 
 
-double FaustProgram::getValue (int index)
+float FaustProgram::getValue (size_t index)
 {
     if (index < 0 || index >= getParamCount ())
         return 0.0;
     else
-        return (faustInterface->getParamValue (index));
+        return faustInterface->getParamValue(index);
 }
 
-void FaustProgram::setValue (int index, double value)
+void FaustProgram::setValue (size_t index, float value)
 {
     if (index < 0 || index >= getParamCount ()) {}
     else
-        faustInterface->setParamValue (index, static_cast<float>(value));
+        faustInterface->setParamValue (index, value);
 }
 
 void FaustProgram::compute(int samples, const float** in, float** out)
@@ -165,6 +165,6 @@ bool FaustProgram::isReady ()
     return ready;
 }
 
-juce::String FaustProgram::getLabel(int idx) {
+juce::String FaustProgram::getLabel(size_t idx) {
   return juce::String(faustInterface->getParamLabel(idx));
 }
