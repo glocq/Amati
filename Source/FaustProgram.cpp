@@ -107,13 +107,18 @@ int FaustProgram::getNumOutChannels ()
 
 FaustProgram::ItemType FaustProgram::getType (size_t index)
 {
-    APIUI::ItemType type = faustInterface->getParamItemType (index);
-
-    if (type == APIUI::kVSlider || type == APIUI::kHSlider) {
-      return ItemType::Slider;
-    } else if (type == APIUI::kButton) {
+    auto type = faustInterface->getParamItemType(index);
+    switch (type) {
+    case APIUI::kButton:
+    case APIUI::kCheckButton:
       return ItemType::Button;
-    } else {
+    case APIUI::kVSlider:
+    case APIUI::kHSlider:
+    case APIUI::kNumEntry:
+      return ItemType::Slider;
+    case APIUI::kHBargraph:
+    case APIUI::kVBargraph:
+    default:
       return ItemType::Unavailable;
     }
 }
