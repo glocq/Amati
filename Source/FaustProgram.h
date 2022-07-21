@@ -32,12 +32,14 @@
 class FaustProgram
 {
 
-private:
-    // UNAVAILABLE is for when we don't/can't include the UI element;
-    // As of now, only sliders are available (and they are all horizontal)
-    enum ItemType {UNAVAILABLE, SLIDER};
-
 public:
+  enum class ItemType {
+      // Unavailabe is for when we don't/can't include the UI element;
+      // As of now, only sliders are available (and they are all horizontal)
+      Unavailable,
+      Slider,
+      Button,
+    };
 
     FaustProgram (int sampRate);
     ~FaustProgram ();

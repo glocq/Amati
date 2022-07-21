@@ -82,6 +82,7 @@ public:
 
     int getParamCount ();
     juce::String getLabel(size_t idx);
+    FaustProgram::ItemType getType(size_t idx);
 
     void setParameter(int, float) override;
     void beginGesture(size_t);

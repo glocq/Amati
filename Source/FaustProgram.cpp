@@ -109,10 +109,13 @@ FaustProgram::ItemType FaustProgram::getType (size_t index)
 {
     APIUI::ItemType type = faustInterface->getParamItemType (index);
 
-    if (type == APIUI::kVSlider || type == APIUI::kVSlider)
-        return SLIDER;
-    else
-        return UNAVAILABLE;
+    if (type == APIUI::kVSlider || type == APIUI::kHSlider) {
+      return ItemType::Slider;
+    } else if (type == APIUI::kButton) {
+      return ItemType::Button;
+    } else {
+      return ItemType::Unavailable;
+    }
 }
 
 

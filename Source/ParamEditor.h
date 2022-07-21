@@ -30,6 +30,11 @@ public:
     struct Param {
       juce::String id;
       juce::String label;
+      enum class Type {
+        Slider,
+        Button,
+      };
+      Type type;
     };
     ParamEditor (juce::AudioProcessorValueTreeState&);
     ~ParamEditor () noexcept override;
@@ -40,9 +45,10 @@ public:
 
 private:
     juce::AudioProcessorValueTreeState& valueTreeState;
-    juce::OwnedArray<juce::Slider> sliders{};
+    juce::OwnedArray<juce::Component> components{};
     juce::OwnedArray<juce::Label> labels{};
-    juce::OwnedArray<juce::AudioProcessorValueTreeState::SliderAttachment> attachments{};
+    juce::OwnedArray<juce::AudioProcessorValueTreeState::SliderAttachment> sliderAttachments{};
+    juce::OwnedArray<juce::AudioProcessorValueTreeState::ButtonAttachment> buttonAttachments{};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ParamEditor)
 };

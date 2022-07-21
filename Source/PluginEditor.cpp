@@ -92,7 +92,19 @@ void AmatiAudioProcessorEditor::updateParameters ()
 {
   std::vector<ParamEditor::Param> params;
   for (int i = 0; i < audioProcessor.getParamCount(); i++) {
-    params.push_back({paramIdForIdx(i), audioProcessor.getLabel(i)});
+    auto type = audioProcessor.getType(i);
+    ParamEditor::Param::Type paramType;
+    switch (type) {
+    case FaustProgram::ItemType::Slider:
+      paramType = ParamEditor::Param::Type::Slider;
+      break;
+    case FaustProgram::ItemType::Button:
+      paramType = ParamEditor::Param::Type::Button;
+      break;
+    case FaustProgram::ItemType::Unavailable:
+      continue;
+    }
+    params.push_back({paramIdForIdx(i), audioProcessor.getLabel(i), paramType});
   }
   paramEditor.updateParameters(params);
 }

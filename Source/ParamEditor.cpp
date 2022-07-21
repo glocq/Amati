@@ -23,33 +23,51 @@ ParamEditor::ParamEditor (juce::AudioProcessorValueTreeState& vts) :
   valueTreeState(vts) {}
 
 ParamEditor::~ParamEditor() noexcept {
-  attachments.clear();
+  sliderAttachments.clear();
+  buttonAttachments.clear();
   labels.clear();
-  sliders.clear();
+  components.clear();
 }
 
 void ParamEditor::updateParameters(const std::vector<Param>& params) {
-  attachments.clear();
+  sliderAttachments.clear();
+  buttonAttachments.clear();
   labels.clear();
-  sliders.clear();
+  components.clear();
 
   for (auto& p : params) {
-    auto *slider = new juce::Slider();
-    slider->setRange(0.0, 1.0);
+    switch (p.type) {
+      case Param::Type::Slider: {
+        auto *slider = new juce::Slider();
+        slider->setRange(0.0, 1.0);
 
-    auto *attachment = new juce::AudioProcessorValueTreeState::SliderAttachment(
-        valueTreeState, p.id, *slider);
+        auto *attachment = new juce::AudioProcessorValueTreeState::SliderAttachment(
+            valueTreeState, p.id, *slider);
 
-    auto *label = new juce::Label();
-    label->attachToComponent(slider, false);
-    label->setText(p.label, juce::dontSendNotification);
+        auto *label = new juce::Label();
+        label->attachToComponent(slider, false);
+        label->setText(p.label, juce::dontSendNotification);
 
-    sliders.add(slider);
-    labels.add(label);
-    attachments.add(attachment);
+        components.add(slider);
+        labels.add(label);
+        sliderAttachments.add(attachment);
 
-    addAndMakeVisible(slider);
-    addAndMakeVisible(label);
+        addAndMakeVisible(slider);
+        addAndMakeVisible(label);
+        break;
+      }
+      case Param::Type::Button: {
+        auto *button = new juce::TextButton(p.label);
+        button->setClickingTogglesState (true);
+        auto *attachment = new juce::AudioProcessorValueTreeState::ButtonAttachment(
+            valueTreeState, p.id, *button);
+        components.add(button);
+        buttonAttachments.add(attachment);
+
+        addAndMakeVisible(button);
+        break;
+      }
+    }
   }
 
   resized();
@@ -61,13 +79,12 @@ void ParamEditor::resized ()
     int sliderHeight = 30;
     int sideMargin = 10;
 
-    for (int i = 0; i < sliders.size(); ++i)
+    for (int i = 0; i < components.size(); ++i)
     {
-        sliders[i] -> setBounds
-        (
+        components[i]->setBounds(
             sideMargin,
             (1+i) * margin + i * sliderHeight,
-            getWidth () - sideMargin,
+            getWidth () - sideMargin*2,
             sliderHeight
         );
     }

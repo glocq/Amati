@@ -28,7 +28,7 @@
 
 class AmatiAudioProcessorEditor :
     public juce::AudioProcessorEditor,
-    public juce::Button::Listener,
+    public juce::Button::Listener
 {
 public:
     AmatiAudioProcessorEditor (AmatiAudioProcessor&, juce::AudioProcessorValueTreeState&);
@@ -41,8 +41,6 @@ public:
     //==============================================================================
     void buttonClicked (juce::Button*) override;
 
-    void timerCallback() override;
-
 private:
     AmatiAudioProcessor& audioProcessor;
     juce::AudioProcessorValueTreeState& valueTreeState;
@@ -50,7 +48,6 @@ private:
     MapUI faustUI;
 
     void updateParameters ();
-    void updateParameterValues ();
     void updateEditor ();
 
     juce::TabbedComponent tabbedComponent;

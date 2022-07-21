@@ -285,3 +285,6 @@ void AmatiAudioProcessor::updateDspParameters ()
     }
 }
 
+FaustProgram::ItemType AmatiAudioProcessor::getType(size_t idx) {
+  return faustProgram.getType(idx);
+}
