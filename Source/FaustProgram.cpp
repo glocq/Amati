@@ -147,14 +147,14 @@ float FaustProgram::getValue (size_t index)
     if (index < 0 || index >= getParamCount ())
         return 0.0;
     else
-        return faustInterface->getParamValue(index);
+        return faustInterface->getParamRatio(index);
 }
 
 void FaustProgram::setValue (size_t index, float value)
 {
     if (index < 0 || index >= getParamCount ()) {}
     else
-        faustInterface->setParamValue (index, value);
+        faustInterface->setParamRatio(index, value);
 }
 
 void FaustProgram::compute(int samples, const float** in, float** out)
