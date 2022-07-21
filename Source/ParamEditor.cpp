@@ -36,6 +36,7 @@ void ParamEditor::updateParameters(const std::vector<Param>& params) {
   components.clear();
 
   for (auto& p : params) {
+    juce::Component* component;
     switch (p.type) {
       case Param::Type::Slider: {
         auto *slider = new juce::Slider();
@@ -48,7 +49,7 @@ void ParamEditor::updateParameters(const std::vector<Param>& params) {
         label->attachToComponent(slider, false);
         label->setText(p.label, juce::dontSendNotification);
 
-        components.add(slider);
+        component = slider;
         labels.add(label);
         sliderAttachments.add(attachment);
 
@@ -61,13 +62,18 @@ void ParamEditor::updateParameters(const std::vector<Param>& params) {
         button->setClickingTogglesState (true);
         auto *attachment = new juce::AudioProcessorValueTreeState::ButtonAttachment(
             valueTreeState, p.id, *button);
-        components.add(button);
+
+        component = button;
         buttonAttachments.add(attachment);
 
         addAndMakeVisible(button);
         break;
       }
+      default:
+        continue;
     }
+    components.add(component);
+    component->getProperties().set("type", static_cast<int>(p.type));
   }
 
   resized();
@@ -81,11 +87,15 @@ void ParamEditor::resized ()
 
     for (int i = 0; i < components.size(); ++i)
     {
-        components[i]->setBounds(
-            sideMargin,
-            (1+i) * margin + i * sliderHeight,
-            getWidth () - sideMargin*2,
-            sliderHeight
-        );
+      auto* comp = components[i];
+      const auto& props = comp->getProperties();
+      auto type = static_cast<Param::Type>(static_cast<int>(props.getWithDefault("type", 0)));
+      auto width = type == Param::Type::Button ? 100 : getWidth () - sideMargin*2;
+      comp->setBounds(
+          sideMargin,
+          (1+i) * margin + i * sliderHeight,
+          width,
+          sliderHeight
+      );
     }
 }
