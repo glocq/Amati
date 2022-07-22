@@ -19,11 +19,16 @@
 
 #pragma once
 
+// Use the Interprter backend instead of the LLVM backend
+//#define INTERP
+
 #include <JuceHeader.h>
-
+#ifdef INTERP
+#include <faust/dsp/interpreter-dsp.h>
+#else
 #include <faust/dsp/llvm-dsp.h>
+#endif
 #include <faust/gui/APIUI.h>
-
 
 // Wrapper around Faust-related stuff, namely:
 // - a Faust program
@@ -67,11 +72,10 @@ public:
 
 private:
 
-    llvm_dsp_factory* dspFactory = nullptr;
-    llvm_dsp* dspInstance = nullptr;
+    dsp_factory* dspFactory = nullptr;
+    dsp* dspInstance = nullptr;
     APIUI* faustInterface = nullptr;
     bool ready = false;
     int sampleRate;
-
 
 };
