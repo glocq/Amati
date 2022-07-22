@@ -28,52 +28,72 @@ FaustProgram::~FaustProgram ()
 {
     delete faustInterface;
     delete dspInstance;
+#ifdef INTERP
+    deleteInterpreterDSPFactory(static_cast<interpreter_dsp_factory*>(dspFactory));
+#else
+    deleteDSPFactory(static_cast<llvm_dsp_factory*>(dspFactory));
+#endif
 }
 
 bool FaustProgram::compileSource (juce::String source)
 {
-    juce::Logger::getCurrentLogger() -> writeToLog ("Starting compilation...");
+    juce::Logger::getCurrentLogger()->writeToLog ("Starting compilation...");
 
     const char* argv[] = {""}; // compilation arguments
     std::string errorString;
+    
+    dsp_factory* formerFactory = dspFactory;
 
-    llvm_dsp_factory* factory = createDSPFactoryFromString
-    (
-        "faust", // program name
-        source.toStdString (),
-        0, // number of arguments
-        argv,
-        "", // compilation target; left empty to say we want to compile for this machine
-        errorString
-    );
-
-
-    if (factory) // compilation successful!
+#ifdef INTERP
+    dspFactory = createInterpreterDSPFactoryFromString (
+         "faust",   // program name
+         source.toStdString (),
+         0,         // number of arguments
+         argv,
+         errorString
+     );
+#else
+    dspFactory = createDSPFactoryFromString (
+         "faust",   // program name
+         source.toStdString (),
+         0,         // number of arguments
+         argv,
+         "",        // compilation target; left empty to say we want to compile for this machine
+         errorString
+     );
+#endif
+    
+    if (dspFactory) // compilation successful!
     {
-        llvm_dsp* formerInstance = dspInstance;
+        dsp* formerInstance = dspInstance;
 
-        dspInstance = factory -> createDSPInstance ();
-
-        // delete factory; // we won't need this anymore
+        dspInstance = dspFactory->createDSPInstance ();
+   
         delete formerInstance; // has been replaced
+    #ifdef INTERP
+        deleteInterpreterDSPFactory(static_cast<interpreter_dsp_factory*>(formerFactory));
+    #else
+        deleteDSPFactory(static_cast<llvm_dsp_factory*>(formerFactory));
+    #endif
+
         delete faustInterface; // to start fresh
 
-        dspInstance -> init (sampleRate);
+        dspInstance->init (sampleRate);
 
         faustInterface = new APIUI;
-        dspInstance -> buildUserInterface (faustInterface);
+        dspInstance->buildUserInterface (faustInterface);
 
         ready = true;
 
-        juce::Logger::getCurrentLogger() -> writeToLog ("Compilation complete! Using new program.");
+        juce::Logger::getCurrentLogger()->writeToLog ("Compilation complete! Using new program.");
 
         return true;
     }
     else
     {
-      auto* logger = juce::Logger::getCurrentLogger();
-      logger->writeToLog ("Compilation failed!");
-      logger->writeToLog (errorString);
+        auto* logger = juce::Logger::getCurrentLogger();
+        logger->writeToLog ("Compilation failed!");
+        logger->writeToLog (errorString);
 
         return false;
     }
@@ -91,7 +111,7 @@ size_t FaustProgram::getParamCount ()
 int FaustProgram::getNumInChannels ()
 {
     if (dspInstance)
-        return (dspInstance -> getNumInputs ());
+        return (dspInstance->getNumInputs ());
     else
         return 0;
 }
@@ -100,7 +120,7 @@ int FaustProgram::getNumInChannels ()
 int FaustProgram::getNumOutChannels ()
 {
     if (dspInstance)
-        return (dspInstance -> getNumOutputs ());
+        return (dspInstance->getNumOutputs ());
     else
         return 0;
 }
@@ -160,7 +180,7 @@ void FaustProgram::setValue (size_t index, float value)
 
 void FaustProgram::compute(int samples, const float** in, float** out)
 {
-    dspInstance -> compute (samples, const_cast<float**>(in), out);
+    dspInstance->compute (samples, const_cast<float**>(in), out);
 }
 
 void FaustProgram::setSampleRate (int sampRate)
