@@ -67,6 +67,7 @@ public:
 
 private:
 
+    llvm_dsp_factory* dspFactory = nullptr;
     llvm_dsp* dspInstance = nullptr;
     APIUI* faustInterface = nullptr;
     bool ready = false;

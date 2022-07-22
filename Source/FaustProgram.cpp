@@ -28,6 +28,7 @@ FaustProgram::~FaustProgram ()
 {
     delete faustInterface;
     delete dspInstance;
+    deleteDSPFactory(dspFactory);
 }
 
 bool FaustProgram::compileSource (juce::String source)
@@ -36,8 +37,10 @@ bool FaustProgram::compileSource (juce::String source)
 
     const char* argv[] = {""}; // compilation arguments
     std::string errorString;
+    
+    llvm_dsp_factory* formerFactory = dspFactory;
 
-    llvm_dsp_factory* factory = createDSPFactoryFromString
+    dspFactory = createDSPFactoryFromString
     (
         "faust", // program name
         source.toStdString (),
@@ -48,14 +51,14 @@ bool FaustProgram::compileSource (juce::String source)
     );
 
 
-    if (factory) // compilation successful!
+    if (dspFactory) // compilation successful!
     {
         llvm_dsp* formerInstance = dspInstance;
 
-        dspInstance = factory -> createDSPInstance ();
-
-        // delete factory; // we won't need this anymore
+        dspInstance = dspFactory -> createDSPInstance ();
+   
         delete formerInstance; // has been replaced
+        deleteDSPFactory(formerFactory);
         delete faustInterface; // to start fresh
 
         dspInstance -> init (sampleRate);
