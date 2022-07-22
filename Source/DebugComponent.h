@@ -33,6 +33,7 @@ public:
     void paint (juce::Graphics&) override {}
     void resized () override;
 
+    void clearMessages();
     void logMessage (const juce::String&) override;
 
 private:

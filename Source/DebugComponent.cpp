@@ -46,6 +46,10 @@ void DebugComponent::resized ()
     );
 }
 
+void DebugComponent::clearMessages() {
+    console.clear();
+}
+
 void DebugComponent::logMessage (const juce::String& message)
 {
     console.setCaretPosition (console.getTotalNumChars ());

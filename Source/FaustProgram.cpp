@@ -71,10 +71,11 @@ bool FaustProgram::compileSource (juce::String source)
     }
     else
     {
-        juce::Logger::getCurrentLogger() -> writeToLog ("Compilation failed!");
-        juce::Logger::getCurrentLogger() -> writeToLog (errorString);
+      auto* logger = juce::Logger::getCurrentLogger();
+      logger->writeToLog ("Compilation failed!");
+      logger->writeToLog (errorString);
 
-        return ready;
+        return false;
     }
 }
 

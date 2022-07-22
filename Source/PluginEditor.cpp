@@ -79,10 +79,14 @@ void AmatiAudioProcessorEditor::buttonClicked (juce::Button* button)
     juce::String id = button -> getComponentID ();
 
     if (id == "compile")
-    { 
+    {
+        consoleTab.clearMessages();
         if (audioProcessor.compileSource (editorComponent.getSource ()))
         {
             updateParameters ();
+            tabbedComponent.setCurrentTabIndex(1);
+        } else {
+            tabbedComponent.setCurrentTabIndex(2);
         }
     }
 }
