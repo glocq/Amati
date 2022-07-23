@@ -17,9 +17,9 @@
     along with Amati.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "DebugComponent.h"
+#include "ConsoleComponent.h"
 
-DebugComponent::DebugComponent ()
+ConsoleComponent::ConsoleComponent()
 {
     console.setReadOnly (true);
     console.setCaretVisible (false);
@@ -33,7 +33,7 @@ DebugComponent::DebugComponent ()
     addAndMakeVisible (&console);
 }
 
-void DebugComponent::resized ()
+void ConsoleComponent::resized ()
 {
     int margin = 10;
 
@@ -46,11 +46,11 @@ void DebugComponent::resized ()
     );
 }
 
-void DebugComponent::clearMessages() {
+void ConsoleComponent::clearMessages() {
     console.clear();
 }
 
-void DebugComponent::logMessage (const juce::String& message)
+void ConsoleComponent::logMessage (const juce::String& message)
 {
     console.setCaretPosition (console.getTotalNumChars ());
     console.insertTextAtCaret (message + "\n");

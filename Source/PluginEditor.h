@@ -19,12 +19,12 @@
 
 #pragma once
 
-#include <JuceHeader.h>
-#include <faust/gui/MapUI.h>
-#include "PluginProcessor.h"
+#include "ConsoleComponent.h"
 #include "EditorComponent.h"
 #include "ParamEditor.h"
-#include "DebugComponent.h"
+#include "PluginProcessor.h"
+#include <JuceHeader.h>
+#include <faust/gui/MapUI.h>
 
 class AmatiAudioProcessorEditor :
     public juce::AudioProcessorEditor,
@@ -53,7 +53,7 @@ private:
     juce::TabbedComponent tabbedComponent;
     EditorComponent editorComponent;
     ParamEditor paramEditor;
-    DebugComponent consoleTab;
+    ConsoleComponent consoleTab;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AmatiAudioProcessorEditor)
 };

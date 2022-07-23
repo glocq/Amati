@@ -75,14 +75,14 @@ target_compile_features(${BaseTargetName} PRIVATE cxx_std_17)
 juce_generate_juce_header(${BaseTargetName})
 
 set(SourceFiles
-    Source/DebugComponent.h
+        Source/ConsoleComponent.h
     Source/EditorComponent.h
     Source/FaustCodeTokenizer.h
     Source/FaustProgram.h
     Source/ParamEditor.h
     Source/PluginEditor.h
     Source/PluginProcessor.h
-    Source/DebugComponent.cpp
+        Source/ConsoleComponent.cpp
     Source/EditorComponent.cpp
     Source/FaustCodeTokenizer.cpp
     Source/FaustProgram.cpp

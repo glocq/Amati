@@ -22,13 +22,13 @@
 #include <JuceHeader.h>
 
 
-class DebugComponent :
+class ConsoleComponent :
     public juce::Component,
     public juce::Logger
 {
 public:
-    DebugComponent ();
-    ~DebugComponent () override {}
+  ConsoleComponent();
+    ~ConsoleComponent() override {}
 
     void paint (juce::Graphics&) override {}
     void resized () override;
@@ -39,5 +39,5 @@ public:
 private:
     juce::TextEditor console;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DebugComponent)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ConsoleComponent)
 };
