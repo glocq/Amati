@@ -38,7 +38,7 @@ AmatiAudioProcessor::AmatiAudioProcessor() :
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                        ),
 #endif
-    faustProgram (44100),
+    faustProgram (FaustProgram::Backend::LLVM, 44100),
       valueTreeState(*this, nullptr, "parameters", createParameterLayout())
 {}
 

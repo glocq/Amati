@@ -23,17 +23,13 @@
 //#define INTERP
 
 #include <JuceHeader.h>
-#ifdef INTERP
-#include <faust/dsp/interpreter-dsp.h>
-#else
-#include <faust/dsp/llvm-dsp.h>
-#endif
+
+#include <faust/dsp/dsp.h>
 #include <faust/gui/APIUI.h>
 
 // Wrapper around Faust-related stuff, namely:
 // - a Faust program
 // - the associated user interface
-
 class FaustProgram
 {
 
@@ -46,7 +42,12 @@ public:
       Button,
     };
 
-    FaustProgram (int sampRate);
+  enum class Backend {
+    LLVM,
+    Interpreter,
+  };
+
+    FaustProgram (Backend, int sampRate);
     ~FaustProgram ();
 
     bool compileSource (juce::String);
@@ -67,15 +68,16 @@ public:
     juce::String getLabel(size_t idx);
 
     void compute(int sampleCount, const float** input, float** output);
-    void setSampleRate (int);
     bool isReady ();
 
 private:
+  class DspFactory;
 
-    dsp_factory* dspFactory = nullptr;
-    dsp* dspInstance = nullptr;
-    APIUI* faustInterface = nullptr;
-    bool ready = false;
-    int sampleRate;
+  Backend backend;
 
+  std::unique_ptr<DspFactory> dspFactory;
+  std::unique_ptr<dsp> dspInstance;
+  std::unique_ptr<APIUI> faustInterface;
+
+  int sampleRate;
 };

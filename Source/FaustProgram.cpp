@@ -19,20 +19,39 @@
 
 #include "FaustProgram.h"
 
+#include <faust/dsp/interpreter-dsp.h>
+#include <faust/dsp/llvm-dsp.h>
 
-FaustProgram::FaustProgram (int sampRate) : sampleRate (sampRate)
+class FaustProgram::DspFactory {
+public:
+  DspFactory(dsp_factory* f, FaustProgram::Backend b) : dspFactory(f), backend(b) {}
+
+  ~DspFactory() {
+    switch (backend) {
+    case FaustProgram::Backend::LLVM:
+      deleteDSPFactory(static_cast<llvm_dsp_factory*>(dspFactory));
+      break;
+    case FaustProgram::Backend::Interpreter:
+      deleteInterpreterDSPFactory(static_cast<interpreter_dsp_factory*>(dspFactory));
+      break;
+    }
+  }
+
+private:
+  dsp_factory* dspFactory;
+  FaustProgram::Backend backend;
+};
+
+FaustProgram::FaustProgram (Backend b, int sampRate) : backend(b), sampleRate (sampRate)
 {
 }
 
 FaustProgram::~FaustProgram ()
 {
-    delete faustInterface;
-    delete dspInstance;
-#ifdef INTERP
-    deleteInterpreterDSPFactory(static_cast<interpreter_dsp_factory*>(dspFactory));
-#else
-    deleteDSPFactory(static_cast<llvm_dsp_factory*>(dspFactory));
-#endif
+  // Delete in order.
+    faustInterface.reset(nullptr);
+    dspInstance.reset(nullptr);
+    dspFactory.reset(nullptr);
 }
 
 bool FaustProgram::compileSource (juce::String source)
@@ -42,52 +61,42 @@ bool FaustProgram::compileSource (juce::String source)
     const char* argv[] = {""}; // compilation arguments
     std::string errorString;
     
-    dsp_factory* formerFactory = dspFactory;
+    dsp_factory* newFactory;
+    switch (backend) {
+    case Backend::LLVM:
+      newFactory = createDSPFactoryFromString (
+          "faust",   // program name
+          source.toStdString (),
+          0,         // number of arguments
+          argv,
+          "",        // compilation target; left empty to say we want to compile for this machine
+          errorString
+      );
+      break;
+    case Backend::Interpreter:
+      newFactory = createInterpreterDSPFactoryFromString (
+          "faust",   // program name
+          source.toStdString (),
+          0,         // number of arguments
+          argv,
+          errorString
+      );
+      break;
+    }
 
-#ifdef INTERP
-    dspFactory = createInterpreterDSPFactoryFromString (
-         "faust",   // program name
-         source.toStdString (),
-         0,         // number of arguments
-         argv,
-         errorString
-     );
-#else
-    dspFactory = createDSPFactoryFromString (
-         "faust",   // program name
-         source.toStdString (),
-         0,         // number of arguments
-         argv,
-         "",        // compilation target; left empty to say we want to compile for this machine
-         errorString
-     );
-#endif
-    
-    if (dspFactory) // compilation successful!
+    if (newFactory) // compilation successful!
     {
-        dsp* formerInstance = dspInstance;
+      dspInstance.reset(newFactory->createDSPInstance());
+      dspInstance->init (sampleRate);
+      // Note: dspFactory is reset after dspInstance because the parent
+      // factory needs to outlive it.
+      dspFactory.reset(new DspFactory(newFactory, backend));
 
-        dspInstance = dspFactory->createDSPInstance ();
-   
-        delete formerInstance; // has been replaced
-    #ifdef INTERP
-        deleteInterpreterDSPFactory(static_cast<interpreter_dsp_factory*>(formerFactory));
-    #else
-        deleteDSPFactory(static_cast<llvm_dsp_factory*>(formerFactory));
-    #endif
+      faustInterface.reset(new APIUI);
+      dspInstance->buildUserInterface (faustInterface.get());
 
-        delete faustInterface; // to start fresh
-
-        dspInstance->init (sampleRate);
-
-        faustInterface = new APIUI;
-        dspInstance->buildUserInterface (faustInterface);
-
-        ready = true;
-
-        juce::Logger::getCurrentLogger()->writeToLog ("Compilation complete! Using new program.");
-
-        return true;
+      juce::Logger::getCurrentLogger()->writeToLog ("Compilation complete! Using new program.");
+      return true;
     }
     else
     {
@@ -183,15 +192,9 @@ void FaustProgram::compute(int samples, const float** in, float** out)
     dspInstance->compute (samples, const_cast<float**>(in), out);
 }
 
-void FaustProgram::setSampleRate (int sampRate)
-{
-    sampleRate = sampRate;
-    ready = false;
-}
-
 bool FaustProgram::isReady ()
 {
-    return ready;
+    return static_cast<bool>(dspInstance);
 }
 
 juce::String FaustProgram::getLabel(size_t idx) {
