@@ -110,8 +110,4 @@ void AmatiAudioProcessorEditor::updateEditor ()
 }
 void AmatiAudioProcessorEditor::valueTreePropertyChanged(
     ValueTree &treeWhosePropertyHasChanged, const Identifier &property) {
-  if (property == backendId) {
-    int backend = treeWhosePropertyHasChanged.getProperty(backendId);
-    audioProcessor.setBackend(static_cast<FaustProgram::Backend>(backend - 1));
-  }
 }

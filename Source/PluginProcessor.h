@@ -31,7 +31,7 @@ inline juce::String paramIdForIdx(size_t idx) {
 //==============================================================================
 /**
 */
-class AmatiAudioProcessor  : public juce::AudioProcessor
+class AmatiAudioProcessor  : public juce::AudioProcessor, juce::ValueTree::Listener
 {
 public:
     //==============================================================================
@@ -71,6 +71,11 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+  private:
+    void valueTreePropertyChanged(ValueTree &treeWhosePropertyHasChanged,
+                                  const Identifier &property) override;
+
+  public:
     //==============================================================================
     /**
         Compile the source code given as a string.

@@ -31,6 +31,12 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout
   return layout;
 }
 
+namespace Id {
+  const juce::Identifier sourceCode("source_code");
+  const juce::Identifier settings("settings");
+  const juce::Identifier backend("backend");
+}
+
 AmatiAudioProcessor::AmatiAudioProcessor() :
 #ifndef JucePlugin_PreferredChannelConfigurations
      AudioProcessor (BusesProperties()
@@ -39,7 +45,9 @@ AmatiAudioProcessor::AmatiAudioProcessor() :
                        ),
 #endif
       valueTreeState(*this, nullptr, "parameters", createParameterLayout())
-{}
+{
+  valueTreeState.state.addListener(this);
+}
 
 AmatiAudioProcessor::~AmatiAudioProcessor()
 {
@@ -250,9 +258,6 @@ void AmatiAudioProcessor::setStateInformation (const void* data, int sizeInBytes
 
     valueTreeState.replaceState(juce::ValueTree::fromXml(*parameters));
     sourceCode = source->getAllSubText();
-    if (playing) {
-      compileSource (sourceCode);
-    }
 }
 
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
@@ -262,6 +267,10 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 
 bool AmatiAudioProcessor::compileSource (juce::String source)
 {
+  if (!playing) {
+    return false;
+  }
+
   switch (backend) {
   case FaustProgram::Backend::LLVM:
     juce::Logger::getCurrentLogger()->writeToLog ("Compiling with LLVM backend...");
@@ -270,6 +279,7 @@ bool AmatiAudioProcessor::compileSource (juce::String source)
     juce::Logger::getCurrentLogger()->writeToLog ("Compiling with Interpreter backend...");
     break;
   }
+
   try {
       faustProgram.reset(new FaustProgram(source, backend, sampleRate));
       juce::Logger::getCurrentLogger()->writeToLog ("Compilation complete! Using new program.");
@@ -318,7 +328,9 @@ FaustProgram::ItemType AmatiAudioProcessor::getType(size_t idx) {
 }
 
 void AmatiAudioProcessor::setBackend(FaustProgram::Backend newBackend) {
+  DBG("setBackend: " << int(newBackend));
   backend = newBackend;
+  compileSource (sourceCode);
 }
 
 std::vector<AmatiAudioProcessor::FaustParameter> AmatiAudioProcessor::getFaustParameters() const {
@@ -342,4 +354,13 @@ std::vector<AmatiAudioProcessor::FaustParameter> AmatiAudioProcessor::getFaustPa
     params.push_back({paramIdForIdx(i), faustProgram->getLabel(i), paramType});
   }
   return params;
+}
+
+void AmatiAudioProcessor::valueTreePropertyChanged(
+    ValueTree& tree, const Identifier &property) {
+  if (property == Id::backend) {
+    int backend = tree[property];
+    setBackend(static_cast<FaustProgram::Backend>(backend - 1));
+  }
+  DBG("Property change: " << tree.getType() << " " << property);
 }
