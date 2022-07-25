@@ -85,33 +85,32 @@ public:
     juce::String getLabel(size_t idx);
     FaustProgram::ItemType getType(size_t idx);
 
-    void setParameter(int, float) override;
-    void beginGesture(size_t);
-    void endGesture(size_t);
-
+    struct FaustParameter {
+      juce::String id;
+      juce::String label;
+      enum class Type {
+        Slider,
+        Button,
+      };
+      Type type;
+    };
+    std::vector<FaustParameter> getFaustParameters() const;
 private:
     //==============================================================================
     // We keep a copy of the source code inside the processor.
     // The GUI's code editor will refer to it.
     juce::String sourceCode = "";
-    FaustProgram::Backend backend;
-    std::unique_ptr<FaustProgram> faustProgram;
+    FaustProgram::Backend backend{};
+    std::unique_ptr<FaustProgram> faustProgram{};
     bool playing{false};
 
     juce::AudioProcessorValueTreeState valueTreeState;
-
-    // The parameters defined in the Faust code.
-    // Hosts don't like it when the set of parameters dynamically changes,
-    // so we create an array of PARAM_COUNT parameters
-    // and only make some number of them accessible from the GUI.
-    juce::Array<juce::AudioParameterFloat*> controlParameters;
 
     // Used in processBlock to copy input and output buffers
     juce::AudioBuffer<float> tmpBufferIn;
     juce::AudioBuffer<float> tmpBufferOut;
 
     double sampleRate;
-
 
     void updateDspParameters ();
 

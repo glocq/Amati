@@ -69,8 +69,11 @@ void FaustProgram::compileSource (juce::String source)
           errorString
       );
       break;
-    default:
-      throw CompileError("Invalid factory");
+    default: {
+      juce::String message("Invalid backend: ");
+      message += int(backend);
+      throw CompileError(message);
+    }
     }
 
     if (!dspFactory)

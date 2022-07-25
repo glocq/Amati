@@ -27,20 +27,14 @@
 class ParamEditor : public juce::Component
 {
 public:
-    struct Param {
-      juce::String id;
-      juce::String label;
-      enum class Type {
-        Slider,
-        Button,
-      };
-      Type type;
-    };
     ParamEditor (juce::AudioProcessorValueTreeState&);
     ~ParamEditor () noexcept override;
 
     void paint (juce::Graphics&) override {}
     void resized () override;
+
+    using Param = AmatiAudioProcessor::FaustParameter;
+
     void updateParameters(const std::vector<Param>&);
 
 private:
