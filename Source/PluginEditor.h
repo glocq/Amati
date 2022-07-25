@@ -23,6 +23,8 @@
 #include "EditorComponent.h"
 #include "ParamEditor.h"
 #include "PluginProcessor.h"
+#include "SettingsComponent.h"
+
 #include <JuceHeader.h>
 #include <faust/gui/MapUI.h>
 
@@ -54,6 +56,7 @@ private:
     EditorComponent editorComponent;
     ParamEditor paramEditor;
     ConsoleComponent consoleTab;
+    SettingsComponent settingsComponent;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AmatiAudioProcessorEditor)
 };

@@ -79,6 +79,7 @@ public:
     */
     bool compileSource (juce::String);
     juce::String getSourceCode ();
+    void setBackend(FaustProgram::Backend);
 
     int getParamCount ();
     juce::String getLabel(size_t idx);
@@ -94,7 +95,7 @@ private:
     // The GUI's code editor will refer to it.
     juce::String sourceCode = "";
 
-    FaustProgram faustProgram;
+    std::unique_ptr<FaustProgram> faustProgram;
 
     juce::AudioProcessorValueTreeState valueTreeState;
 

@@ -28,7 +28,8 @@ AmatiAudioProcessorEditor::AmatiAudioProcessorEditor (AmatiAudioProcessor& p, ju
     audioProcessor (p),
                                                                                                                       valueTreeState(vts),
     tabbedComponent (juce::TabbedButtonBar::TabsAtTop),
-    paramEditor(vts)
+    paramEditor(vts),
+    settingsComponent(vts.state.getOrCreateChildWithName("settings", nullptr))
 {
     // Graphics stuff ----------------------------------------------------------
 
@@ -42,6 +43,7 @@ AmatiAudioProcessorEditor::AmatiAudioProcessorEditor (AmatiAudioProcessor& p, ju
     tabbedComponent.addTab ("Editor", tabColour, &editorComponent, false);
     tabbedComponent.addTab ("Parameters", tabColour, &paramEditor, false);
     tabbedComponent.addTab ("Console", tabColour, &consoleTab, false);
+    tabbedComponent.addTab("Settings", tabColour, &settingsComponent, false);
 
     setResizable (true, true);
     // So we have to set a maximum size? Well we'll just use the maximum possible integer

@@ -76,19 +76,22 @@ juce_generate_juce_header(${BaseTargetName})
 
 set(SourceFiles
         Source/ConsoleComponent.h
-    Source/EditorComponent.h
-    Source/FaustCodeTokenizer.h
-    Source/FaustProgram.h
-    Source/ParamEditor.h
-    Source/PluginEditor.h
-    Source/PluginProcessor.h
+        Source/EditorComponent.h
+        Source/FaustCodeTokenizer.h
+        Source/FaustProgram.h
+        Source/ParamEditor.h
+        Source/PluginEditor.h
+        Source/PluginProcessor.h
+        Source/SettingsComponent.h
+
         Source/ConsoleComponent.cpp
-    Source/EditorComponent.cpp
-    Source/FaustCodeTokenizer.cpp
-    Source/FaustProgram.cpp
-    Source/ParamEditor.cpp
-    Source/PluginEditor.cpp
-    Source/PluginProcessor.cpp
+        Source/EditorComponent.cpp
+        Source/FaustCodeTokenizer.cpp
+        Source/FaustProgram.cpp
+        Source/ParamEditor.cpp
+        Source/PluginEditor.cpp
+        Source/PluginProcessor.cpp
+        Source/SettingsComponent.cpp
 )
 
 target_sources(${BaseTargetName} PRIVATE ${SourceFiles})
