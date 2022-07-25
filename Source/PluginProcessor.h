@@ -94,8 +94,9 @@ private:
     // We keep a copy of the source code inside the processor.
     // The GUI's code editor will refer to it.
     juce::String sourceCode = "";
-
+    FaustProgram::Backend backend;
     std::unique_ptr<FaustProgram> faustProgram;
+    bool playing{false};
 
     juce::AudioProcessorValueTreeState valueTreeState;
 

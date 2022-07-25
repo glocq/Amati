@@ -22,6 +22,8 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+juce::Identifier backendId("backend");
+
 //==============================================================================
 AmatiAudioProcessorEditor::AmatiAudioProcessorEditor (AmatiAudioProcessor& p, juce::AudioProcessorValueTreeState& vts) :
     AudioProcessorEditor (&p),
@@ -29,7 +31,8 @@ AmatiAudioProcessorEditor::AmatiAudioProcessorEditor (AmatiAudioProcessor& p, ju
                                                                                                                       valueTreeState(vts),
     tabbedComponent (juce::TabbedButtonBar::TabsAtTop),
     paramEditor(vts),
-    settingsComponent(vts.state.getOrCreateChildWithName("settings", nullptr))
+    settingsTree(vts.state.getOrCreateChildWithName("settings", nullptr)),
+    settingsComponent(settingsTree)
 {
     // Graphics stuff ----------------------------------------------------------
 
@@ -57,6 +60,8 @@ AmatiAudioProcessorEditor::AmatiAudioProcessorEditor (AmatiAudioProcessor& p, ju
     updateEditor (); // set editor to display the processor's source code
 
     juce::Logger::setCurrentLogger (&consoleTab);
+
+    settingsTree.addListener(this);
 }
 
 AmatiAudioProcessorEditor::~AmatiAudioProcessorEditor()
@@ -119,4 +124,10 @@ void AmatiAudioProcessorEditor::updateEditor ()
 {
     editorComponent.setSource (audioProcessor.getSourceCode ());
 }
-
+void AmatiAudioProcessorEditor::valueTreePropertyChanged(
+    ValueTree &treeWhosePropertyHasChanged, const Identifier &property) {
+  if (property == backendId) {
+    int backend = treeWhosePropertyHasChanged.getProperty(backendId);
+    audioProcessor.setBackend(static_cast<FaustProgram::Backend>(backend - 1));
+  }
+}

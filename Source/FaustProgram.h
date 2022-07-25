@@ -19,9 +19,6 @@
 
 #pragma once
 
-// Use the Interprter backend instead of the LLVM backend
-//#define INTERP
-
 #include <JuceHeader.h>
 
 #include <faust/dsp/dsp.h>
@@ -34,9 +31,16 @@ class FaustProgram
 {
 
 public:
+  class CompileError : public std::runtime_error
+  {
+  public:
+    explicit CompileError (const char* message) : std::runtime_error (message) {}
+    explicit CompileError (const std::string& message) : std::runtime_error (message) {}
+    explicit CompileError (const juce::String& message) : CompileError (message.toStdString()) {}
+  };
+
   enum class ItemType {
       // Unavailabe is for when we don't/can't include the UI element;
-      // As of now, only sliders are available (and they are all horizontal)
       Unavailable,
       Slider,
       Button,
@@ -47,10 +51,11 @@ public:
     Interpreter,
   };
 
-    FaustProgram (Backend, int sampRate);
-    ~FaustProgram ();
+  /// Construct a Faust Program.
+  /// @throws CompileError
+  FaustProgram (juce::String source, Backend, int sampRate);
+  ~FaustProgram ();
 
-    bool compileSource (juce::String);
     size_t getParamCount ();
     int getNumInChannels ();
     int getNumOutChannels ();
@@ -68,14 +73,14 @@ public:
     juce::String getLabel(size_t idx);
 
     void compute(int sampleCount, const float** input, float** output);
-    bool isReady ();
 
 private:
   class DspFactory;
+  void compileSource(juce::String);
 
   Backend backend;
 
-  std::unique_ptr<DspFactory> dspFactory;
+  dsp_factory* dspFactory;
   std::unique_ptr<dsp> dspInstance;
   std::unique_ptr<APIUI> faustInterface;
 

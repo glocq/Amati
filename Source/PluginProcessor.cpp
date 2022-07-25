@@ -38,7 +38,6 @@ AmatiAudioProcessor::AmatiAudioProcessor() :
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                        ),
 #endif
-    faustProgram (new FaustProgram(FaustProgram::Backend::LLVM, 44100)),
       valueTreeState(*this, nullptr, "parameters", createParameterLayout())
 {}
 
@@ -119,10 +118,14 @@ void AmatiAudioProcessor::prepareToPlay (double sampRate, int samplesPerBlock)
 
     tmpBufferIn  = juce::AudioBuffer<float> (numChannelsIn,  samplesPerBlock);
     tmpBufferOut = juce::AudioBuffer<float> (numChannelsOut, samplesPerBlock);
+    compileSource(sourceCode);
+    playing = true;
 }
 
 void AmatiAudioProcessor::releaseResources()
 {
+  faustProgram.reset(nullptr);
+  playing = false;
 }
 
 bool AmatiAudioProcessor::isBusesLayoutSupported (const BusesLayout&) const
@@ -150,7 +153,7 @@ void AmatiAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-    if (not faustProgram->isReady ())
+    if (not faustProgram)
     {
         for (auto i = 0; i < totalNumOutputChannels; ++i)
             buffer.clear (i, 0, numSamples);
@@ -222,15 +225,17 @@ void AmatiAudioProcessor::setStateInformation (const void* data, int sizeInBytes
 
     if (preset.get())
     {
-        sourceCode = preset -> getChildByName ("source") -> getAllSubText ();
-        compileSource (sourceCode);
-
         juce::XmlElement* parameters = preset->getChildByName(valueTreeState.state.getType());
         if (parameters) {
           valueTreeState.replaceState(juce::ValueTree::fromXml(*parameters));
+          sourceCode = preset -> getChildByName ("source") -> getAllSubText ();
+          if (playing) {
+            compileSource (sourceCode);
+          }
         } else {
           juce::Logger::getCurrentLogger()->writeToLog("Invalid preset");
         }
+
     }
 }
 
@@ -241,21 +246,33 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 
 bool AmatiAudioProcessor::compileSource (juce::String source)
 {
-    bool result = faustProgram->compileSource (source);
-
-    if (result)
-    {
-        sourceCode = source;
-
-        // Update internal buffers
-        int inChans  = faustProgram->getNumInChannels  ();
-        int outChans = faustProgram->getNumOutChannels ();
-
-        tmpBufferIn.setSize  (inChans,  tmpBufferIn.getNumSamples  ());
-        tmpBufferOut.setSize (outChans, tmpBufferOut.getNumSamples ());
+  switch (backend) {
+  case FaustProgram::Backend::LLVM:
+    juce::Logger::getCurrentLogger()->writeToLog ("Compiling with LLVM backend...");
+    break;
+  case FaustProgram::Backend::Interpreter:
+    juce::Logger::getCurrentLogger()->writeToLog ("Compiling with Interpreter backend...");
+    break;
+  }
+  try {
+      faustProgram.reset(new FaustProgram(source, backend, sampleRate));
+      juce::Logger::getCurrentLogger()->writeToLog ("Compilation complete! Using new program.");
+    } catch (FaustProgram::CompileError& e) {
+      auto* logger = juce::Logger::getCurrentLogger();
+      logger->writeToLog ("Compilation failed!");
+      logger->writeToLog (e.what());
+      return false;
     }
 
-    return result;
+    sourceCode = source;
+
+    // Update internal buffers
+    int inChans  = faustProgram->getNumInChannels  ();
+    int outChans = faustProgram->getNumOutChannels ();
+
+    tmpBufferIn.setSize  (inChans,  tmpBufferIn.getNumSamples  ());
+    tmpBufferOut.setSize (outChans, tmpBufferOut.getNumSamples ());
+    return true;
 }
 
 juce::String AmatiAudioProcessor::getSourceCode ()
@@ -289,6 +306,6 @@ FaustProgram::ItemType AmatiAudioProcessor::getType(size_t idx) {
   return faustProgram->getType(idx);
 }
 
-void AmatiAudioProcessor::setBackend(FaustProgram::Backend backend) {
-  faustProgram.reset(new FaustProgram(backend, sampleRate));
+void AmatiAudioProcessor::setBackend(FaustProgram::Backend newBackend) {
+  backend = newBackend;
 }
