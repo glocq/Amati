@@ -26,10 +26,10 @@
 AmatiAudioProcessorEditor::AmatiAudioProcessorEditor (AmatiAudioProcessor& p, juce::AudioProcessorValueTreeState& vts) :
     AudioProcessorEditor (&p),
     audioProcessor (p),
-                                                                                                                      valueTreeState(vts),
+    valueTreeState(vts),
+    settingsTree(vts.state.getOrCreateChildWithName("settings", nullptr)),
     tabbedComponent (juce::TabbedButtonBar::TabsAtTop),
     paramEditor(vts),
-    settingsTree(vts.state.getOrCreateChildWithName("settings", nullptr)),
     settingsComponent(settingsTree)
 {
     // Graphics stuff ----------------------------------------------------------

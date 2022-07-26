@@ -281,7 +281,7 @@ bool AmatiAudioProcessor::compileSource (juce::String source)
   }
 
   try {
-      faustProgram.reset(new FaustProgram(source, backend, sampleRate));
+      faustProgram.reset(new FaustProgram(source, backend, static_cast<int>(sampleRate)));
       juce::Logger::getCurrentLogger()->writeToLog ("Compilation complete! Using new program.");
     } catch (FaustProgram::CompileError& e) {
       auto* logger = juce::Logger::getCurrentLogger();
@@ -319,7 +319,9 @@ void AmatiAudioProcessor::updateDspParameters ()
 {
     size_t count = faustProgram->getParamCount();
     for (size_t i = 0; i < count; ++i) {
-        faustProgram->setValue (i, *valueTreeState.getRawParameterValue(paramIdForIdx(i)));
+      auto id = paramIdForIdx(static_cast<int>(i));
+      float value = *valueTreeState.getRawParameterValue(id);
+      faustProgram->setValue (i, value);
     }
 }
 
@@ -338,7 +340,7 @@ std::vector<AmatiAudioProcessor::FaustParameter> AmatiAudioProcessor::getFaustPa
   if (!faustProgram) {
     return params;
   }
-  for (int i = 0; i < faustProgram->getParamCount(); i++) {
+  for (size_t i = 0; i < faustProgram->getParamCount(); i++) {
     auto type = faustProgram->getType(i);
     ParamEditor::Param::Type paramType;
     switch (type) {
@@ -359,8 +361,8 @@ std::vector<AmatiAudioProcessor::FaustParameter> AmatiAudioProcessor::getFaustPa
 void AmatiAudioProcessor::valueTreePropertyChanged(
     ValueTree& tree, const Identifier &property) {
   if (property == Id::backend) {
-    int backend = tree[property];
-    setBackend(static_cast<FaustProgram::Backend>(backend - 1));
+    int newBackend = tree[property];
+    setBackend(static_cast<FaustProgram::Backend>(newBackend - 1));
   }
   DBG("Property change: " << tree.getType() << " " << property);
 }

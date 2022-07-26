@@ -24,8 +24,11 @@
 
 #include "FaustProgram.h"
 
-inline juce::String paramIdForIdx(size_t idx) {
+inline juce::String paramIdForIdx(int idx) {
   return juce::String("Param") + juce::String(idx);
+}
+inline juce::String paramIdForIdx(size_t idx) {
+  return paramIdForIdx(static_cast<int>(idx));
 }
 
 //==============================================================================
