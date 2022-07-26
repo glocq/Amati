@@ -41,6 +41,37 @@ public:
   }
 };
 
+//==============================================================================
+AmatiSliderParameterAttachment::AmatiSliderParameterAttachment (RangedAudioParameter& param,
+                                                     Slider& s,
+                                                     UndoManager* um)
+    : slider (s),
+      attachment (param, [this] (float f) { setValue (f); }, um)
+{
+  sendInitialUpdate();
+  slider.valueChanged();
+  slider.addListener (this);
+}
+
+AmatiSliderParameterAttachment::~AmatiSliderParameterAttachment()
+{
+  slider.removeListener (this);
+}
+
+void AmatiSliderParameterAttachment::sendInitialUpdate() { attachment.sendInitialUpdate(); }
+
+void AmatiSliderParameterAttachment::setValue (float newValue)
+{
+  const ScopedValueSetter<bool> svs (ignoreCallbacks, true);
+  slider.setValue (newValue, sendNotificationSync);
+}
+
+void AmatiSliderParameterAttachment::sliderValueChanged (Slider*)
+{
+  if (! ignoreCallbacks)
+    attachment.setValueAsPartOfGesture ((float) slider.getValue());
+}
+
 ParamEditor::ParamEditor (juce::AudioProcessorValueTreeState& vts) :
   valueTreeState(vts) {}
 
@@ -62,9 +93,9 @@ void ParamEditor::updateParameters(const std::vector<Param>& params) {
     switch (p.type) {
       case Param::Type::Slider: {
         auto *slider = new juce::Slider();
-        slider->setRange(0.0, 1.0);
+        slider->setNormalisableRange({p.range, p.step});
 
-        auto *attachment = new juce::AudioProcessorValueTreeState::SliderAttachment(
+        auto *attachment = new AmatiSliderAttachment(
             valueTreeState, p.id, *slider);
 
         auto *label = new juce::Label();

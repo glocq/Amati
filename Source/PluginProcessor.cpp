@@ -339,7 +339,13 @@ std::vector<AmatiAudioProcessor::FaustParameter> AmatiAudioProcessor::getFaustPa
     case FaustProgram::ItemType::Unavailable:
       continue;
     }
-    params.push_back({paramIdForIdx(i), faustProgram->getLabel(i), paramType});
+    params.push_back({paramIdForIdx(i),
+                      faustProgram->getLabel(i),
+                      paramType,
+                      {faustProgram->getMin(i), faustProgram->getMax(i)},
+                      faustProgram->getInit(i),
+                      faustProgram->getStep(i),
+    });
   }
   return params;
 }

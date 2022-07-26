@@ -68,6 +68,7 @@ public:
     double getMin (size_t);
     double getMax (size_t);
     double getInit (size_t);
+    float getStep(size_t);
 
     float getValue (size_t);
     void setValue (size_t, float);

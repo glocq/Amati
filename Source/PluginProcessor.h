@@ -97,6 +97,9 @@ public:
         CheckButton,
       };
       Type type;
+      juce::Range<double> range;
+      double init;
+      double step;
     };
     std::vector<FaustParameter> getFaustParameters() const;
 private:

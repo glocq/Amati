@@ -23,6 +23,48 @@
 
 #include "PluginProcessor.h"
 
+class AmatiSliderParameterAttachment : private juce::Slider::Listener
+{
+public:
+  AmatiSliderParameterAttachment (juce::RangedAudioParameter& parameter, juce::Slider& slider,
+                                  juce::UndoManager* undoManager = nullptr);
+
+  ~AmatiSliderParameterAttachment() override;
+
+  void sendInitialUpdate();
+
+private:
+  void setValue (float newValue);
+  void sliderValueChanged (juce::Slider*) override;
+
+  void sliderDragStarted (juce::Slider*) override { attachment.beginGesture(); }
+  void sliderDragEnded   (juce::Slider*) override { attachment.endGesture(); }
+
+  juce::Slider& slider;
+  juce::ParameterAttachment attachment;
+  bool ignoreCallbacks = false;
+};
+
+class AmatiSliderAttachment
+{
+public:
+  AmatiSliderAttachment (AudioProcessorValueTreeState& stateToUse,
+                         const String& parameterID,
+                         Slider& slider
+  ) {
+    if (auto* parameter = stateToUse.getParameter (parameterID)) {
+      attachment = std::make_unique<AmatiSliderParameterAttachment>(
+          *parameter, slider, stateToUse.undoManager);
+    } else {
+      jassertfalse;
+    }
+  }
+
+private:
+  std::unique_ptr<AmatiSliderParameterAttachment> attachment;
+  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AmatiSliderAttachment)
+};
+
 
 class ParamEditor : public juce::Component
 {
@@ -41,7 +83,7 @@ private:
     juce::AudioProcessorValueTreeState& valueTreeState;
     juce::OwnedArray<juce::Component> components{};
     juce::OwnedArray<juce::Label> labels{};
-    juce::OwnedArray<juce::AudioProcessorValueTreeState::SliderAttachment> sliderAttachments{};
+    juce::OwnedArray<AmatiSliderAttachment> sliderAttachments{};
     juce::OwnedArray<juce::AudioProcessorValueTreeState::ButtonAttachment> buttonAttachments{};
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ParamEditor)

@@ -142,6 +142,10 @@ double FaustProgram::getInit (size_t index)
     return (faustInterface->getParamInit (index));
 }
 
+float FaustProgram::getStep(size_t idx) {
+  return faustInterface->getParamStep(idx);
+}
+
 
 float FaustProgram::getValue (size_t index)
 {
