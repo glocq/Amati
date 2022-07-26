@@ -49,10 +49,6 @@ AmatiAudioProcessor::AmatiAudioProcessor() :
   valueTreeState.state.addListener(this);
 }
 
-AmatiAudioProcessor::~AmatiAudioProcessor()
-{
-}
-
 const juce::String AmatiAudioProcessor::getName() const
 {
     return JucePlugin_Name;
@@ -132,8 +128,8 @@ void AmatiAudioProcessor::prepareToPlay (double sampRate, int samplesPerBlock)
 
 void AmatiAudioProcessor::releaseResources()
 {
-  faustProgram.reset(nullptr);
   playing = false;
+  faustProgram.reset(nullptr);
 }
 
 bool AmatiAudioProcessor::isBusesLayoutSupported (const BusesLayout&) const
@@ -306,15 +302,6 @@ juce::String AmatiAudioProcessor::getSourceCode ()
     return sourceCode;
 }
 
-int AmatiAudioProcessor::getParamCount ()
-{
-  return PARAM_COUNT;
-}
-
-juce::String AmatiAudioProcessor::getLabel(size_t idx) {
-  return faustProgram->getLabel(idx);
-}
-
 void AmatiAudioProcessor::updateDspParameters ()
 {
     size_t count = faustProgram->getParamCount();
@@ -323,10 +310,6 @@ void AmatiAudioProcessor::updateDspParameters ()
       float value = *valueTreeState.getRawParameterValue(id);
       faustProgram->setValue (i, value);
     }
-}
-
-FaustProgram::ItemType AmatiAudioProcessor::getType(size_t idx) {
-  return faustProgram->getType(idx);
 }
 
 void AmatiAudioProcessor::setBackend(FaustProgram::Backend newBackend) {

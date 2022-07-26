@@ -39,7 +39,6 @@ class AmatiAudioProcessor  : public juce::AudioProcessor, juce::ValueTree::Liste
 public:
     //==============================================================================
     AmatiAudioProcessor();
-    ~AmatiAudioProcessor() override;
 
     //==============================================================================
     void prepareToPlay (double sampRate, int samplesPerBlock) override;
@@ -89,10 +88,6 @@ public:
     juce::String getSourceCode ();
     void setBackend(FaustProgram::Backend);
 
-    int getParamCount ();
-    juce::String getLabel(size_t idx);
-    FaustProgram::ItemType getType(size_t idx);
-
     struct FaustParameter {
       juce::String id;
       juce::String label;
@@ -118,7 +113,7 @@ private:
     juce::AudioBuffer<float> tmpBufferIn;
     juce::AudioBuffer<float> tmpBufferOut;
 
-    double sampleRate;
+    double sampleRate{};
 
     void updateDspParameters ();
 
