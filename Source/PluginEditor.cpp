@@ -91,15 +91,6 @@ void AmatiAudioProcessorEditor::resized()
     tabbedComponent.setBounds (margin, margin, getWidth() - 2*margin, getHeight() - 2*margin);
 }
 
-void AmatiAudioProcessorEditor::buttonClicked (juce::Button* button)
-{
-    juce::String id = button -> getComponentID ();
-
-    if (id == "compile")
-    {
-   }
-}
-
 //==============================================================================
 void AmatiAudioProcessorEditor::updateParameters ()
 {
