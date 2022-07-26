@@ -94,6 +94,7 @@ public:
       enum class Type {
         Slider,
         Button,
+        CheckButton,
       };
       Type type;
     };

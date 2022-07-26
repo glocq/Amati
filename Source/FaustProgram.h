@@ -44,6 +44,7 @@ public:
       Unavailable,
       Slider,
       Button,
+      CheckButton,
     };
 
   enum class Backend {

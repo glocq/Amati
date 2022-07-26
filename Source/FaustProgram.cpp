@@ -110,8 +110,9 @@ FaustProgram::ItemType FaustProgram::getType (size_t index)
     auto type = faustInterface->getParamItemType(index);
     switch (type) {
     case APIUI::kButton:
-    case APIUI::kCheckButton:
       return ItemType::Button;
+    case APIUI::kCheckButton:
+      return ItemType::CheckButton;
     case APIUI::kVSlider:
     case APIUI::kHSlider:
     case APIUI::kNumEntry:

@@ -333,6 +333,9 @@ std::vector<AmatiAudioProcessor::FaustParameter> AmatiAudioProcessor::getFaustPa
     case FaustProgram::ItemType::Button:
       paramType = ParamEditor::Param::Type::Button;
       break;
+    case FaustProgram::ItemType::CheckButton:
+      paramType = ParamEditor::Param::Type::CheckButton;
+      break;
     case FaustProgram::ItemType::Unavailable:
       continue;
     }

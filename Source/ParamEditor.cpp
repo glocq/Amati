@@ -19,6 +19,28 @@
 
 #include "ParamEditor.h"
 
+// https://forum.juce.com/t/how-to-get-parameterchanged-to-be-called-for-push-button/29052/17?u=kisielk
+class MomentaryButton : public juce::TextButton {
+public:
+  MomentaryButton(const juce::String& label) : juce::TextButton(label) {}
+
+  void mouseDown(const MouseEvent&) override
+  {
+    setState(Button::buttonDown);
+
+    if (!getToggleState())
+      setToggleState(true, sendNotification);
+  }
+
+  void mouseUp(const MouseEvent&) override
+  {
+    setState(Button::buttonOver);
+
+    if (getToggleState())
+      setToggleState(false, sendNotification);
+  }
+};
+
 ParamEditor::ParamEditor (juce::AudioProcessorValueTreeState& vts) :
   valueTreeState(vts) {}
 
@@ -58,7 +80,19 @@ void ParamEditor::updateParameters(const std::vector<Param>& params) {
         break;
       }
       case Param::Type::Button: {
-        auto *button = new juce::TextButton(p.label);
+        auto *button = new MomentaryButton(p.label);
+        button->setClickingTogglesState (true);
+        auto *attachment = new juce::AudioProcessorValueTreeState::ButtonAttachment(
+            valueTreeState, p.id, *button);
+
+        component = button;
+        buttonAttachments.add(attachment);
+
+        addAndMakeVisible(button);
+        break;
+      }
+      case Param::Type::CheckButton: {
+        auto *button = new TextButton(p.label);
         button->setClickingTogglesState (true);
         auto *attachment = new juce::AudioProcessorValueTreeState::ButtonAttachment(
             valueTreeState, p.id, *button);
@@ -90,7 +124,10 @@ void ParamEditor::resized ()
       auto* comp = components[i];
       const auto& props = comp->getProperties();
       auto type = static_cast<Param::Type>(static_cast<int>(props.getWithDefault("type", 0)));
-      auto width = type == Param::Type::Button ? 100 : getWidth () - sideMargin*2;
+      auto width = getWidth () - sideMargin*2;
+      if (type == Param::Type::Button || type == Param::Type::CheckButton) {
+        width = 100;
+      }
       comp->setBounds(
           sideMargin,
           (1+i) * margin + i * sliderHeight,
