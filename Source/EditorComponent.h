@@ -28,14 +28,15 @@ class EditorComponent :
 {
 public:
     EditorComponent ();
-    ~EditorComponent () override {}
 
     void paint (juce::Graphics&) override {}
     void resized () override;
 
-    void startListeningToCompileButton (juce::Button::Listener*);
     juce::String getSource ();
     void setSource (juce::String);
+
+    std::function<void(void)> onCompile;
+    std::function<void(void)> onRevert;
 
 private:
     FaustTokeniser tokeniser;
@@ -46,6 +47,12 @@ private:
     juce::CodeEditorComponent codeEditor;
 
     juce::TextButton compileButton;
+    juce::TextButton revertButton;
+    juce::TextButton importButton;
+    juce::TextButton exportButton;
+
+    std::unique_ptr<juce::FileChooser> fileChooser;
+    juce::File workdir; // TODO: Store this in settings so it persists between runs.
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EditorComponent)
 };

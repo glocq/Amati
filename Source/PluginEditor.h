@@ -43,8 +43,6 @@ public:
 
     //==============================================================================
     void buttonClicked (juce::Button*) override;
-    void valueTreePropertyChanged(ValueTree &treeWhosePropertyHasChanged,
-                                  const Identifier &property) override;
 
 private:
   AmatiAudioProcessor& audioProcessor;

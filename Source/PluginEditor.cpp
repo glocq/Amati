@@ -22,8 +22,6 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
-juce::Identifier backendId("backend");
-
 //==============================================================================
 AmatiAudioProcessorEditor::AmatiAudioProcessorEditor (AmatiAudioProcessor& p, juce::AudioProcessorValueTreeState& vts) :
     AudioProcessorEditor (&p),
@@ -38,7 +36,7 @@ AmatiAudioProcessorEditor::AmatiAudioProcessorEditor (AmatiAudioProcessor& p, ju
 
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (400, 300);
+    setSize (800, 600);
 
     addAndMakeVisible (&tabbedComponent);
 
@@ -54,7 +52,19 @@ AmatiAudioProcessorEditor::AmatiAudioProcessorEditor (AmatiAudioProcessor& p, ju
 
     //---------------------------------------------------------------------------
 
-    editorComponent.startListeningToCompileButton (this);
+    editorComponent.onCompile = [&] {
+      consoleTab.clearMessages();
+      if (audioProcessor.compileSource (editorComponent.getSource ()))
+      {
+        updateParameters ();
+        tabbedComponent.setCurrentTabIndex(1);
+      } else {
+        tabbedComponent.setCurrentTabIndex(2);
+      }
+    };
+    editorComponent.onRevert = [&] {
+      updateEditor();
+    };
 
     updateParameters (); // set the right display for the parameters
     updateEditor (); // set editor to display the processor's source code
@@ -87,15 +97,7 @@ void AmatiAudioProcessorEditor::buttonClicked (juce::Button* button)
 
     if (id == "compile")
     {
-        consoleTab.clearMessages();
-        if (audioProcessor.compileSource (editorComponent.getSource ()))
-        {
-            updateParameters ();
-            tabbedComponent.setCurrentTabIndex(1);
-        } else {
-            tabbedComponent.setCurrentTabIndex(2);
-        }
-    }
+   }
 }
 
 //==============================================================================
@@ -107,7 +109,4 @@ void AmatiAudioProcessorEditor::updateParameters ()
 void AmatiAudioProcessorEditor::updateEditor ()
 {
     editorComponent.setSource (audioProcessor.getSourceCode ());
-}
-void AmatiAudioProcessorEditor::valueTreePropertyChanged(
-    ValueTree &treeWhosePropertyHasChanged, const Identifier &property) {
 }
