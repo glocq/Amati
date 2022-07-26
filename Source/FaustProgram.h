@@ -57,22 +57,21 @@ public:
   FaustProgram (juce::String source, Backend, int sampRate);
   ~FaustProgram ();
 
-    size_t getParamCount ();
+    int getParamCount ();
     int getNumInChannels ();
     int getNumOutChannels ();
 
-    // Getters for values associated with a parameter
-    // (UI element type; minimum, maximum and initial value)
-    // Argument has to be less than parameter count!
-    ItemType getType (size_t);
-    double getMin (size_t);
-    double getMax (size_t);
-    double getInit (size_t);
-    float getStep(size_t);
+    struct Parameter {
+      juce::String label;
+      ItemType type;
+      juce::Range<double> range;
+      double init;
+      double step;
+    };
+    Parameter getParameter(int idx);
 
-    float getValue (size_t);
-    void setValue (size_t, float);
-    juce::String getLabel(size_t idx);
+    float getValue (int idx);
+    void setValue (int idx, float);
 
     void compute(int sampleCount, const float** input, float** output);
 

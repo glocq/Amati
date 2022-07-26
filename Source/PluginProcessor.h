@@ -90,16 +90,7 @@ public:
 
     struct FaustParameter {
       juce::String id;
-      juce::String label;
-      enum class Type {
-        Slider,
-        Button,
-        CheckButton,
-      };
-      Type type;
-      juce::Range<double> range;
-      double init;
-      double step;
+      FaustProgram::Parameter programParameter;
     };
     std::vector<FaustParameter> getFaustParameters() const;
 private:

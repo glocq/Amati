@@ -87,67 +87,54 @@ void FaustProgram::compileSource (juce::String source)
     dspInstance->buildUserInterface (faustInterface.get());
 }
 
-size_t FaustProgram::getParamCount ()
+int FaustProgram::getParamCount ()
 {
-  return static_cast<size_t>(faustInterface->getParamsCount());
+  return faustInterface->getParamsCount();
 }
 
 
 int FaustProgram::getNumInChannels ()
 {
-  return (dspInstance->getNumInputs ());
+  return dspInstance->getNumInputs ();
 }
 
 
 int FaustProgram::getNumOutChannels ()
 {
-  return (dspInstance->getNumOutputs ());
+  return dspInstance->getNumOutputs ();
 }
 
 
-FaustProgram::ItemType FaustProgram::getType (size_t index)
+static FaustProgram::ItemType apiToItemType (APIUI::ItemType type)
 {
-    auto type = faustInterface->getParamItemType(index);
-    switch (type) {
-    case APIUI::kButton:
-      return ItemType::Button;
-    case APIUI::kCheckButton:
-      return ItemType::CheckButton;
-    case APIUI::kVSlider:
-    case APIUI::kHSlider:
-    case APIUI::kNumEntry:
-      return ItemType::Slider;
-    case APIUI::kHBargraph:
-    case APIUI::kVBargraph:
-    default:
-      return ItemType::Unavailable;
-    }
+  using ItemType = FaustProgram::ItemType;
+  switch (type) {
+  case APIUI::kButton:
+    return ItemType::Button;
+  case APIUI::kCheckButton:
+    return ItemType::CheckButton;
+  case APIUI::kVSlider:
+  case APIUI::kHSlider:
+  case APIUI::kNumEntry:
+    return ItemType::Slider;
+  case APIUI::kHBargraph:
+  case APIUI::kVBargraph:
+  default:
+    return ItemType::Unavailable;
+  }
+}
+
+FaustProgram::Parameter FaustProgram::getParameter(int idx) {
+  return { juce::String(faustInterface->getParamLabel(idx)),
+           apiToItemType(faustInterface->getParamItemType(idx)),
+           {faustInterface->getParamMin(idx), faustInterface->getParamMax(idx)},
+           faustInterface->getParamInit(idx),
+           faustInterface->getParamStep(idx)
+  };
 }
 
 
-double FaustProgram::getMin (size_t index)
-{
-    return (faustInterface->getParamMin (index));
-}
-
-
-double FaustProgram::getMax (size_t index)
-{
-    return (faustInterface->getParamMax (index));
-}
-
-
-double FaustProgram::getInit (size_t index)
-{
-    return (faustInterface->getParamInit (index));
-}
-
-float FaustProgram::getStep(size_t idx) {
-  return faustInterface->getParamStep(idx);
-}
-
-
-float FaustProgram::getValue (size_t index)
+float FaustProgram::getValue (int index)
 {
     if (index < 0 || index >= getParamCount ())
         return 0.0;
@@ -155,7 +142,7 @@ float FaustProgram::getValue (size_t index)
         return faustInterface->getParamRatio(index);
 }
 
-void FaustProgram::setValue (size_t index, float value)
+void FaustProgram::setValue (int index, float value)
 {
     if (index < 0 || index >= getParamCount ()) {}
     else
@@ -165,8 +152,4 @@ void FaustProgram::setValue (size_t index, float value)
 void FaustProgram::compute(int samples, const float** in, float** out)
 {
     dspInstance->compute (samples, const_cast<float**>(in), out);
-}
-
-juce::String FaustProgram::getLabel(size_t idx) {
-  return juce::String(faustInterface->getParamLabel(idx));
 }

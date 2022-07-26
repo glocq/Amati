@@ -88,15 +88,17 @@ void ParamEditor::updateParameters(const std::vector<Param>& params) {
   labels.clear();
   components.clear();
 
-  for (auto& p : params) {
+  using Type = FaustProgram::ItemType;
+  for (const auto& param : params) {
     juce::Component* component;
+    const auto& p = param.programParameter;
     switch (p.type) {
-      case Param::Type::Slider: {
+      case Type::Slider: {
         auto *slider = new juce::Slider();
         slider->setNormalisableRange({p.range, p.step});
 
         auto *attachment = new AmatiSliderAttachment(
-            valueTreeState, p.id, *slider);
+            valueTreeState, param.id, *slider);
 
         auto *label = new juce::Label();
         label->attachToComponent(slider, false);
@@ -110,11 +112,11 @@ void ParamEditor::updateParameters(const std::vector<Param>& params) {
         addAndMakeVisible(label);
         break;
       }
-      case Param::Type::Button: {
+      case Type::Button: {
         auto *button = new MomentaryButton(p.label);
         button->setClickingTogglesState (true);
         auto *attachment = new juce::AudioProcessorValueTreeState::ButtonAttachment(
-            valueTreeState, p.id, *button);
+            valueTreeState, param.id, *button);
 
         component = button;
         buttonAttachments.add(attachment);
@@ -122,11 +124,11 @@ void ParamEditor::updateParameters(const std::vector<Param>& params) {
         addAndMakeVisible(button);
         break;
       }
-      case Param::Type::CheckButton: {
+      case Type::CheckButton: {
         auto *button = new TextButton(p.label);
         button->setClickingTogglesState (true);
         auto *attachment = new juce::AudioProcessorValueTreeState::ButtonAttachment(
-            valueTreeState, p.id, *button);
+            valueTreeState, param.id, *button);
 
         component = button;
         buttonAttachments.add(attachment);
@@ -134,7 +136,7 @@ void ParamEditor::updateParameters(const std::vector<Param>& params) {
         addAndMakeVisible(button);
         break;
       }
-      default:
+      case Type::Unavailable:
         continue;
     }
     components.add(component);
@@ -150,13 +152,14 @@ void ParamEditor::resized ()
     int sliderHeight = 30;
     int sideMargin = 10;
 
+    using Type = FaustProgram::ItemType;
     for (int i = 0; i < components.size(); ++i)
     {
       auto* comp = components[i];
       const auto& props = comp->getProperties();
-      auto type = static_cast<Param::Type>(static_cast<int>(props.getWithDefault("type", 0)));
+      auto type = static_cast<Type>(static_cast<int>(props.getWithDefault("type", 0)));
       auto width = getWidth () - sideMargin*2;
-      if (type == Param::Type::Button || type == Param::Type::CheckButton) {
+      if (type == Type::Button || type == Type::CheckButton) {
         width = 100;
       }
       comp->setBounds(

@@ -304,9 +304,9 @@ juce::String AmatiAudioProcessor::getSourceCode ()
 
 void AmatiAudioProcessor::updateDspParameters ()
 {
-    size_t count = faustProgram->getParamCount();
-    for (size_t i = 0; i < count; ++i) {
-      auto id = paramIdForIdx(static_cast<int>(i));
+    auto count = faustProgram->getParamCount();
+    for (int i = 0; i < count; ++i) {
+      auto id = paramIdForIdx(i);
       float value = *valueTreeState.getRawParameterValue(id);
       faustProgram->setValue (i, value);
     }
@@ -323,30 +323,9 @@ std::vector<AmatiAudioProcessor::FaustParameter> AmatiAudioProcessor::getFaustPa
   if (!faustProgram) {
     return params;
   }
-  for (size_t i = 0; i < faustProgram->getParamCount(); i++) {
-    auto type = faustProgram->getType(i);
-    ParamEditor::Param::Type paramType;
-    switch (type) {
-    case FaustProgram::ItemType::Slider:
-      paramType = ParamEditor::Param::Type::Slider;
-      break;
-    case FaustProgram::ItemType::Button:
-      paramType = ParamEditor::Param::Type::Button;
-      break;
-    case FaustProgram::ItemType::CheckButton:
-      paramType = ParamEditor::Param::Type::CheckButton;
-      break;
-    case FaustProgram::ItemType::Unavailable:
-      continue;
-    }
-    params.push_back({paramIdForIdx(i),
-                      faustProgram->getLabel(i),
-                      paramType,
-                      {faustProgram->getMin(i), faustProgram->getMax(i)},
-                      faustProgram->getInit(i),
-                      faustProgram->getStep(i),
-    });
-  }
+  for (int i = 0; i < faustProgram->getParamCount(); i++) {
+    params.push_back({paramIdForIdx(i), faustProgram->getParameter(i)});
+  };
   return params;
 }
 
