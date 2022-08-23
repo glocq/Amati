@@ -170,3 +170,14 @@ void ParamEditor::resized ()
       );
     }
 }
+
+AmatiSliderAttachment::AmatiSliderAttachment(
+    AudioProcessorValueTreeState &stateToUse, const String &parameterID,
+    Slider &slider) {
+    if (auto* parameter = stateToUse.getParameter (parameterID)) {
+        attachment = std::make_unique<AmatiSliderParameterAttachment>(
+                *parameter, slider, stateToUse.undoManager);
+    } else {
+        jassertfalse;
+    }
+}

@@ -38,6 +38,9 @@ AmatiAudioProcessorEditor::AmatiAudioProcessorEditor (AmatiAudioProcessor& p, ju
     // editor's size to whatever you need it to be.
     setSize (800, 600);
 
+    addAndMakeVisible(statusLabel);
+    statusLabel.setText("Status: Modified", juce::dontSendNotification);
+
     addAndMakeVisible (&tabbedComponent);
 
     juce::Colour tabColour = getLookAndFeel(). findColour (juce::TabbedComponent::backgroundColourId);
@@ -56,9 +59,11 @@ AmatiAudioProcessorEditor::AmatiAudioProcessorEditor (AmatiAudioProcessor& p, ju
       consoleTab.clearMessages();
       if (audioProcessor.compileSource (editorComponent.getSource ()))
       {
+        statusLabel.setText("Status: Running", juce::sendNotification);
         updateParameters ();
         tabbedComponent.setCurrentTabIndex(1);
       } else {
+        statusLabel.setText("Status: Error", juce::sendNotification);
         tabbedComponent.setCurrentTabIndex(2);
       }
     };
@@ -88,7 +93,9 @@ void AmatiAudioProcessorEditor::paint (juce::Graphics& g)
 void AmatiAudioProcessorEditor::resized()
 {
     int margin = 10;
-    tabbedComponent.setBounds (margin, margin, getWidth() - 2*margin, getHeight() - 2*margin);
+    auto bounds = getLocalBounds();
+    statusLabel.setBounds(bounds.removeFromTop(50));
+    tabbedComponent.setBounds (bounds.reduced(margin, margin));
 }
 
 //==============================================================================

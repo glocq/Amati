@@ -45,3 +45,29 @@ void SettingsComponent::resized() {
 
   box.performLayout(getLocalBounds());
 }
+
+ComboBoxSetting::ComboBoxSetting(const juce::Value &value,
+                                 juce::String labelText,
+                                 const std::vector<juce::String> &items) {
+    label.setText(labelText, juce::dontSendNotification);
+    label.attachToComponent(&comboBox, false);
+    addAndMakeVisible(label);
+
+    auto id = 1;
+    for (const auto& item : items) {
+        comboBox.addItem(item, id);
+        ++id;
+    }
+    addAndMakeVisible(comboBox);
+
+    comboBox.getSelectedIdAsValue().referTo(value);
+    if (auto var = value.getValue(); var.isVoid() || static_cast<int>(var) < 1 || static_cast<int>(var) > id) {
+        comboBox.setSelectedId(1, juce::sendNotification);
+    }
+}
+
+void ComboBoxSetting::resized() {
+  auto bounds = getLocalBounds();
+  bounds.removeFromTop(label.getHeight());
+  comboBox.setBounds(bounds);
+}

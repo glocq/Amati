@@ -8,6 +8,7 @@ find_path(
   /opt/lib/faust/architecture/
   /usr/lib/faust/architecture/
   /usr/local/lib/faust/architecture/
+  /usr/local/include
   "${FAUST_INCLUDE_DIR_HINT}"
 )
 

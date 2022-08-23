@@ -55,6 +55,7 @@ private:
     ParamEditor paramEditor;
     ConsoleComponent consoleTab;
     SettingsComponent settingsComponent;
+    juce::Label statusLabel;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AmatiAudioProcessorEditor)
 };
