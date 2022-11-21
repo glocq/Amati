@@ -80,7 +80,9 @@ Contributors
 
 Author: [Grégoire Locqueville](https://github.com/glocq/)
 
-Contributor: [Juan Sierra](https://www.juansaudio.com/)
+Contributors: 
+ * [Juan Sierra](https://www.juansaudio.com/)
+ * [Kamil Kisiel](https://www.kamilkisiel.net/)
 
 
 Credits

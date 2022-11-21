@@ -1,5 +1,6 @@
 /*
     Copyright (C) 2020, 2021 by Grégoire Locqueville <gregoireloc@gmail.com>
+    Copyright (C) 2022 by Kamil Kisiel <kamil@kamilkisiel.net>
 
     This file is part of Amati.
 
