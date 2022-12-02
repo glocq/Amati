@@ -6,9 +6,7 @@ Amati is a VST plugin for live-coding effects in the [Faust](https://faust.grame
 Status of the project
 ----------------------
 
-Amati is functional and allows the creation and use of effects. Some features are still missing, see the issues labeled with "todo" in the issue tracker.
-
-The combined complexity of C++, JUCE and the Faust library make it difficult for me to keep working on the project as of now. However, I'll be glad to discuss it and help anyone interested in doing more work on it.
+Amati is functional and allows the creation and use of effects. Some features are still missing, see the issues labeled with "todo" in the issue tracker. The most notable missing feature according to me is the inability to take MIDI as input.
 
 Building
 ---------
