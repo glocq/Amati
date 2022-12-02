@@ -21,9 +21,9 @@ You'll need to have [libfaust](https://faust.grame.fr/downloads/) installed.
 
 ### Getting the source code
 
-Clone this repository with its submodule:
+Clone this repository:
 ```
-git clone --recurse-submodules https://github.com/glocq/Amati.git
+git clone https://github.com/glocq/Amati.git
 ```
 
 ### Building
