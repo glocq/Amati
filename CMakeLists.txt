@@ -64,7 +64,7 @@ juce_add_plugin(${BaseTargetName}
     EDITOR_WANTS_KEYBOARD_FOCUS TRUE
     COPY_PLUGIN_AFTER_BUILD TRUE
     PLUGIN_MANUFACTURER_CODE L0cq # Not sure I understand what those
-    PLUGIN_CODE Mati # are about, I hope I'm doing it right
+    PLUGIN_CODE Mati              # are about, I hope I'm doing it right
     FORMATS ${Formats}
     PRODUCT_NAME ${BaseTargetName}
 )
