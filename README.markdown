@@ -83,6 +83,7 @@ Author: [Grégoire Locqueville](https://github.com/glocq/)
 Contributors: 
  * [Juan Sierra](https://www.juansaudio.com/)
  * [Kamil Kisiel](https://www.kamilkisiel.net/)
+ * [GRAME](https://www.grame.fr/)
 
 
 Credits
