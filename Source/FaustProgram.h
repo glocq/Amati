@@ -25,6 +25,9 @@
 
 #include <faust/dsp/dsp.h>
 #include <faust/gui/APIUI.h>
+#include <faust/gui/MidiUI.h>
+#include <faust/midi/juce-midi.h>
+#include <faust/midi/midi.h>
 
 // Wrapper around Faust-related stuff, namely:
 // - a Faust program
@@ -75,6 +78,7 @@ public:
     float getValue (int idx);
     void setValue (int idx, float);
 
+    void getMidi(juce::MidiBuffer& midiMessages);
     void compute(int sampleCount, const float** input, float** output);
 
 private:
@@ -86,6 +90,8 @@ private:
   dsp_factory* dspFactory;
   std::unique_ptr<dsp> dspInstance;
   std::unique_ptr<APIUI> faustInterface;
+  std::unique_ptr<juce_midi_handler> midiHandler;
+  std::unique_ptr<MidiUI> midiInterface;
 
   int sampleRate;
 };

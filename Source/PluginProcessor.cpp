@@ -140,7 +140,7 @@ bool AmatiAudioProcessor::isBusesLayoutSupported (const BusesLayout&) const
     return true;
 }
 
-void AmatiAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& /* midiMessages */)
+void AmatiAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     int numSamples = buffer.getNumSamples ();
 
@@ -181,6 +181,8 @@ void AmatiAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
 
         // ---
 
+        faustProgram->getMidi(midiMessages);
+        midiMessages.clear();
         faustProgram->compute(numSamples, tmpBufferIn.getArrayOfReadPointers(), tmpBufferOut.getArrayOfWritePointers());
 
         // ---

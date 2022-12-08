@@ -27,6 +27,8 @@
 
 FaustProgram::FaustProgram (juce::String source, Backend b, int sampRate) : backend(b), sampleRate (sampRate)
 {
+   midiHandler = std::make_unique<juce_midi_handler>();
+   midiInterface = std::make_unique<MidiUI>(midiHandler.get());
    compileSource(source);
 }
 
@@ -34,6 +36,8 @@ FaustProgram::~FaustProgram ()
 {
   // Delete in order.
   faustInterface.reset(nullptr);
+  midiInterface.reset(nullptr);
+  midiHandler.reset(nullptr);
   dspInstance.reset(nullptr);
 
   switch (backend) {
@@ -87,6 +91,7 @@ void FaustProgram::compileSource (juce::String source)
     dspInstance->init (sampleRate);
     faustInterface.reset(new APIUI);
     dspInstance->buildUserInterface (faustInterface.get());
+    dspInstance->buildUserInterface(midiInterface.get());
 }
 
 int FaustProgram::getParamCount ()
@@ -149,6 +154,11 @@ void FaustProgram::setValue (int index, float value)
     if (index < 0 || index >= getParamCount ()) {}
     else
         faustInterface->setParamRatio(index, value);
+}
+
+void FaustProgram::getMidi(juce::MidiBuffer& midiMessages)
+{
+  midiHandler->decodeBuffer(midiMessages);
 }
 
 void FaustProgram::compute(int samples, const float** in, float** out)
