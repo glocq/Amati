@@ -24,6 +24,9 @@
 #include <faust/dsp/interpreter-dsp.h>
 #include <faust/dsp/llvm-dsp.h>
 
+// Globals
+std::list<GUI*> GUI::fGuiList;
+ztimedmap GUI::gTimedZoneMap;
 
 FaustProgram::FaustProgram (juce::String source, Backend b, int sampRate) : backend(b), sampleRate (sampRate)
 {
