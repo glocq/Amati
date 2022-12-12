@@ -156,6 +156,14 @@ void AmatiAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
+    // for (const juce::MidiMessageMetadata metadata : midiMessages)
+    // {
+    //   // TODO remove this
+    //   // I know it's a sin to print stuff from inside the audio callback,
+    //   // this is only here temporarily, for testing purposes
+    //   Logger::outputDebugString (metadata.getMessage().getDescription());
+    // }
+
     if (!faustProgram)
     {
         for (auto i = 0; i < totalNumOutputChannels; ++i)
@@ -182,7 +190,6 @@ void AmatiAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
         // ---
 
         faustProgram->getMidi(midiMessages);
-        midiMessages.clear();
         faustProgram->compute(numSamples, tmpBufferIn.getArrayOfReadPointers(), tmpBufferOut.getArrayOfWritePointers());
 
         // ---
