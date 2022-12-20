@@ -22,18 +22,17 @@
 #include "PluginEditor.h"
 
 
-AmatiAudioProcessor::AmatiAudioProcessor() :
+AmatiAudioProcessor::AmatiAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
-     AudioProcessor (BusesProperties()
-                     #if ! JucePlugin_IsMidiEffect
-                      #if ! JucePlugin_IsSynth
+    : AudioProcessor (BusesProperties()
+                    #if ! JucePlugin_IsMidiEffect
+                    #if ! JucePlugin_IsSynth
                        .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
-                      #endif
+                    #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
-                     #endif
-                       ),
+                    #endif
+                    )
 #endif
-     faustProgram (44100)
 {
     for (int i = 0; i < PARAM_COUNT; ++i)
     {
@@ -128,10 +127,16 @@ void AmatiAudioProcessor::prepareToPlay (double sampRate, int samplesPerBlock)
 
     tmpBufferIn  = juce::AudioBuffer<float> (numChannelsIn,  samplesPerBlock);
     tmpBufferOut = juce::AudioBuffer<float> (numChannelsOut, samplesPerBlock);
+
+    compileSource(sourceCode);
+
+    playing = true;
 }
 
 void AmatiAudioProcessor::releaseResources()
 {
+    playing = false;
+    faustProgram.reset(nullptr);
 }
 
 bool AmatiAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
@@ -159,7 +164,7 @@ void AmatiAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-    if (not faustProgram.isReady ())
+    if (!faustProgram)
     {
         for (auto i = 0; i < totalNumOutputChannels; ++i)
             buffer.clear (i, 0, numSamples);
@@ -182,7 +187,7 @@ void AmatiAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::
 
         // ---
 
-        faustProgram.compute
+        faustProgram->compute
         (
             numSamples,
             tmpBufferIn.getArrayOfWritePointers (), // TODO investigate why those need to be write pointers
@@ -280,21 +285,31 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 
 bool AmatiAudioProcessor::compileSource (juce::String source)
 {
-    bool result = faustProgram.compileSource (source);
-
-    if (result)
-    {
-        sourceCode = source;
-
-        // Update internal buffers
-        int inChans  = faustProgram.getNumInChannels  ();
-        int outChans = faustProgram.getNumOutChannels ();
-
-        tmpBufferIn.setSize  (inChans,  tmpBufferIn.getNumSamples  ());
-        tmpBufferOut.setSize (outChans, tmpBufferOut.getNumSamples ());
+    if (!playing) {
+        return false;
     }
 
-    return result;
+    juce::Logger::getCurrentLogger()->writeToLog ("Compiling with LLVM backend...");
+
+    try {
+        faustProgram.reset(new FaustProgram(source, static_cast<int>(sampleRate)));
+        juce::Logger::getCurrentLogger()->writeToLog ("Compilation complete! Using new program.");
+    } catch (FaustProgram::CompileError& e) {
+        auto* logger = juce::Logger::getCurrentLogger();
+        logger->writeToLog ("Compilation failed!");
+        logger->writeToLog (e.what());
+        return false;
+    }
+
+    sourceCode = source;
+
+    // Update internal buffers
+    int inChans  = faustProgram->getNumInChannels  ();
+    int outChans = faustProgram->getNumOutChannels ();
+
+    tmpBufferIn.setSize  (inChans,  tmpBufferIn.getNumSamples  ());
+    tmpBufferOut.setSize (outChans, tmpBufferOut.getNumSamples ());
+    return true;
 }
 
 juce::String AmatiAudioProcessor::getSourceCode ()
@@ -304,17 +319,27 @@ juce::String AmatiAudioProcessor::getSourceCode ()
 
 int AmatiAudioProcessor::getParamCount ()
 {
-    return faustProgram.getParamCount ();
+    if (!faustProgram) {
+        return 0;
+    }
+    
+    return faustProgram->getParamCount ();
 }
 
 double AmatiAudioProcessor::getParameterValue (int index)
 {
+    if (!faustProgram) {
+        return 0.f;
+    }
+
     return (controlParameters[index] -> get ());
 }
 
 void AmatiAudioProcessor::setParameter (int index, double value)
 {
-    controlParameters[index] -> setValueNotifyingHost (value);
+    if (faustProgram) {
+        controlParameters[index] -> setValueNotifyingHost (value);
+    }
 }
 
 void AmatiAudioProcessor::beginGesture (int index)
@@ -330,12 +355,14 @@ void AmatiAudioProcessor::endGesture (int index)
 
 void AmatiAudioProcessor::updateDspParameters ()
 {
-    int count = faustProgram.getParamCount ();
+    if (faustProgram) {
+        int count = faustProgram->getParamCount ();
 
-    for (int i = 0; i < count; ++i)
-    {
-        double val = controlParameters[i] -> get(); 
-        faustProgram.setValue (i, val);
+        for (int i = 0; i < count; ++i)
+        {
+            double val = controlParameters[i] -> get(); 
+            faustProgram->setValue (i, val);
+        }
     }
 }
 

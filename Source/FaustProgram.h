@@ -39,10 +39,20 @@ private:
 
 public:
 
-    FaustProgram (int sampRate);
+    class CompileError : public std::runtime_error
+    {
+    public:
+        explicit CompileError (const char* message) : std::runtime_error (message) {}
+        explicit CompileError (const std::string& message) : std::runtime_error (message) {}
+        explicit CompileError (const juce::String& message) : CompileError (message.toStdString ()) {}
+    };
+
+    /** Build the Faust program given as input
+     * and package it into an instance of this class
+     */
+    FaustProgram (juce::String source, int sampRate);
     ~FaustProgram ();
 
-    bool compileSource (juce::String);
     int getParamCount ();
     int getNumInChannels ();
     int getNumOutChannels ();
@@ -58,16 +68,14 @@ public:
     double getValue (int);
     void setValue (int, double);
 
+    /** Compute the next `sampleCount` samples output by the Faust program */
     void compute (int sampleCount, float** input, float** output);
-    void setSampleRate (int);
-    bool isReady ();
 
 private:
 
-    llvm_dsp* dspInstance = nullptr;
-    APIUI* faustInterface = nullptr;
-    bool ready = false;
+    dsp_factory* dspFactory;
+    std::unique_ptr<dsp> dspInstance;
+    std::unique_ptr<APIUI> faustInterface;
+
     int sampleRate;
-
-
 };

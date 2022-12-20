@@ -89,7 +89,7 @@ private:
     // The GUI's code editor will refer to it.
     juce::String sourceCode = "";
 
-    FaustProgram faustProgram;
+    std::unique_ptr<FaustProgram> faustProgram {};
 
     // The parameters defined in the Faust code.
     // Hosts don't like it when the set of parameters dynamically changes,
@@ -101,6 +101,7 @@ private:
     juce::AudioBuffer<float> tmpBufferIn;
     juce::AudioBuffer<float> tmpBufferOut;
 
+    bool playing {false};
     double sampleRate;
 
 
