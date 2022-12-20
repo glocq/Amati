@@ -4,6 +4,13 @@ Amati
 Amati is a VST plugin for live-coding effects in the [Faust](https://faust.grame.fr/) programming language.
 As of now it only provides basic functionality. I am making it public so as to get potential feedback.
 
+About this branch
+------------------
+
+The branch `master` features a number of improvements by @kisielk and @sletz, which I merged a bit fast. As a result, the code is a little difficult for me to work with.
+
+This branch starts from just before their contribution. What I am hoping to do with it is to gradually integrate their improvements in a way that is more in line with my own style, so that it is easier for me to work on it in the future.
+
 Building
 ---------
 
